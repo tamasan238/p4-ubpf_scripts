@@ -6,18 +6,22 @@ export P4FILENAME=$P4SAMPLE/action_call_ubpf
 
 # P4 -> C
 alias p4-c='p4c-ubpf $P4FILENAME.p4 -o $P4FILENAME.c'
+alias p4-c_='p4c-ubpf $P4FILENAME.p4 -o $P4FILENAME.c --emit-externs'
 
 # C -> Assembly code (for check only)
 alias c-asm='clang -O2 -S -target bpf -c $P4FILENAME.c -o $P4FILENAME.s -I $UBPFRUNTIME'
+alias c-asm_='clang -O2 -S -target bpf -c $P4FILENAME.c -o $P4FILENAME.s -I $UBPFRUNTIME -include $P4FILENAME_ext.c'
 
 # C -> uBPF Bytecode
 alias c-ubpf='clang -O2 -target bpf -c $P4FILENAME.c -o $P4FILENAME.o -I $UBPFRUNTIME'
-
-# Compile
-alias p4compile='p4-c && c-asm && c-ubpf && echo "please exec run-ubpf"'
+alias c-ubpf_='clang -O2 -target bpf -c $P4FILENAME.c -o $P4FILENAME.o -I $UBPFRUNTIME -include $P4FILENAME_ext.c'
 
 # Run
 alias run-ubpf='$UBPFBIN/ubpf_test $P4FILENAME.o'
+
+# Concat
+alias p4u='p4-c && c-asm && c-ubpf && echo $P4FILENAME && run-ubpf'
+alias p4u_='p4-c_ && c-asm_ && c-ubpf_ && echo $P4FILENAME && echo "* with _ext.c" && run-ubpf'
 
 EOL
 source ~/.bashrc
