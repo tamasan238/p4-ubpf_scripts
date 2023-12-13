@@ -1,4 +1,4 @@
-cat <<EOL >> ~/.bashrc
+cat << "EOL" >> ~/.bashrc
 export P4SAMPLE=~/p4c/testdata/p4_16_samples
 export UBPFBIN=~/ubpf/build/bin
 export UBPFRUNTIME=~/p4c/backends/ubpf/runtime
