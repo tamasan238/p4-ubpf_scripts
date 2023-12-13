@@ -10,11 +10,11 @@ alias p4-c_='p4c-ubpf $P4FILENAME.p4 -o $P4FILENAME.c --emit-externs'
 
 # C -> Assembly code (for check only)
 alias c-asm='clang -O2 -S -target bpf -c $P4FILENAME.c -o $P4FILENAME.s -I $UBPFRUNTIME'
-alias c-asm_='clang -O2 -S -target bpf -c $P4FILENAME.c -o $P4FILENAME.s -I $UBPFRUNTIME -include $P4FILENAME_ext.c'
+alias c-asm_='clang -O2 -S -target bpf -c $P4FILENAME.c -o $P4FILENAME.s -I $UBPFRUNTIME -include $P4FILENAME\_ext.c'
 
 # C -> uBPF Bytecode
 alias c-ubpf='clang -O2 -target bpf -c $P4FILENAME.c -o $P4FILENAME.o -I $UBPFRUNTIME'
-alias c-ubpf_='clang -O2 -target bpf -c $P4FILENAME.c -o $P4FILENAME.o -I $UBPFRUNTIME -include $P4FILENAME_ext.c'
+alias c-ubpf_='clang -O2 -target bpf -c $P4FILENAME.c -o $P4FILENAME.o -I $UBPFRUNTIME -include $P4FILENAME\_ext.c'
 
 # Run
 alias run-ubpf='$UBPFBIN/ubpf_test $P4FILENAME.o'
