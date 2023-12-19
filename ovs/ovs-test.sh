@@ -31,7 +31,7 @@ ip link set $BRIDGE_NAME up
 ip -br a
 
 # tcpdump -i $IFACE_NAME &
-tcpdump -v -i $BRIDGE_NAME >> $PCAP_FILE &
+tcpdump icmp -v -i $BRIDGE_NAME >> $PCAP_FILE &
 TCPDUMP_PID=$!
 
 ssh iwai@$REMOTE_IP_ADDRESS "sudo ip route add $DUMMY_IP_ADDRESS via $MY_IP_ADDRESS"
