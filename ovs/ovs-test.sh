@@ -3,7 +3,7 @@
 BRIDGE_NAME="ovs-br1"
 IFACE_NAME="dummy-if"
 
-MY_IP_ADDRESS=192.168.122.33	   # ubpf vm
+MY_IP_ADDRESS=192.168.122.6	   # ubpf vm
 DUMMY_IP_ADDRESS=192.168.254.254
 REMOTE_IP_ADDRESS=192.168.122.173  # p4 vm
 
@@ -29,7 +29,7 @@ ip link set $BRIDGE_NAME up
 ip -br a
 
 # tcpdump -i $IFACE_NAME &
-tcpdump -i $BRIDGE_NAME &
+tcpdump -v -i $BRIDGE_NAME &
 TCPDUMP_PID=$!
 
 ssh iwai@$REMOTE_IP_ADDRESS "sudo ip route add $DUMMY_IP_ADDRESS via $MY_IP_ADDRESS"
