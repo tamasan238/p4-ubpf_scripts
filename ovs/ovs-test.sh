@@ -7,6 +7,8 @@ MY_IP_ADDRESS=192.168.122.6	   # ubpf vm
 DUMMY_IP_ADDRESS=192.168.254.254
 REMOTE_IP_ADDRESS=192.168.122.173  # p4 vm
 
+PCAP_FILE="/root/pcap.out"
+
 #cd ~iwai/ovs
 #make
 #make install
@@ -29,7 +31,7 @@ ip link set $BRIDGE_NAME up
 ip -br a
 
 # tcpdump -i $IFACE_NAME &
-tcpdump -v -i $BRIDGE_NAME &
+tcpdump -v -i $BRIDGE_NAME >> $PCAP_FILE &
 TCPDUMP_PID=$!
 
 ssh iwai@$REMOTE_IP_ADDRESS "sudo ip route add $DUMMY_IP_ADDRESS via $MY_IP_ADDRESS"
