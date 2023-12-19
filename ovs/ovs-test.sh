@@ -19,10 +19,12 @@ ovs-ctl start
 ovs-vsctl add-br $BRIDGE_NAME
 ovs-vsctl set bridge $BRIDGE_NAME datapath_type=netdev
 
-ip link add name $IFACE_NAME type dummy
-ip addr add $DUMMY_IP_ADDRESS/24 dev $IFACE_NAME
-ip link set $IFACE_NAME up
-ovs-vsctl add-port $BRIDGE_NAME $IFACE_NAME
+#ip link add name $IFACE_NAME type dummy
+#ip addr add $DUMMY_IP_ADDRESS/24 dev $IFACE_NAME
+#ip link set $IFACE_NAME up
+#ovs-vsctl add-port $BRIDGE_NAME $IFACE_NAME
+
+ip addr add $DUMMY_IP_ADDRESS/24 dev $BRIDGE_NAME
 
 echo "ovs-vsctl show:"
 ovs-vsctl show
@@ -31,7 +33,8 @@ ip link set $BRIDGE_NAME up
 ip -br a
 
 # tcpdump -i $IFACE_NAME &
-tcpdump icmp -v -i $BRIDGE_NAME >> $PCAP_FILE &
+#tcpdump icmp -v -i $BRIDGE_NAME >> $PCAP_FILE &
+tcpdump icmp -v -i enp1s0 >> $PCAP_FILE &
 TCPDUMP_PID=$!
 
 ssh iwai@$REMOTE_IP_ADDRESS "sudo ip route add $DUMMY_IP_ADDRESS via $MY_IP_ADDRESS"
