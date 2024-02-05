@@ -17,4 +17,3 @@ alias run-ubpf='$UBPFBIN/ubpf_test $P4FILENAME.o'
 # Concat
 alias p4u='p4-c && c-ubpf && run-ubpf'
 EOL
-source ~/.bashrc
