@@ -1,0 +1,87 @@
+#cloud-config
+autoinstall:
+  apt:
+    disable_components: []
+    geoip: true
+    preserve_sources_list: false
+    primary:
+    - arches:
+      - amd64
+      - i386
+      uri: http://192.168.64.10/ubuntu
+    - arches:
+      - default
+      uri: http://ports.ubuntu.com/ubuntu-ports
+  drivers:
+    install: false
+  identity:
+    hostname: hostname
+    password: $6$X.QAj5TLmkmZbpcW$OVWJu/gGcYso1Eu4J1DMIRm44CSa7zy.qOwX07D3GBZk1SENdOOJd3JldS54izuhmtXfGbFk9la4IzTYJbKgo/
+    realname: iwai
+    username: iwai
+  kernel:
+    package: linux-generic
+  keyboard:
+    layout: jp
+    toggle: null
+    variant: ''
+  locale: en_US.UTF-8
+  network:
+    ethernets:
+      enp1s0:
+        dhcp4: true
+    version: 2
+  source:
+    id: ubuntu-server
+    search_drivers: false
+  ssh:
+    allow-pw: false
+    authorized-keys:
+    - 'ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBABcBhqEqUipY7GPcEMYLFnLLAVxVY9lQlsXX8pnU6O9Qd4Sf6OqyugO2yJ8++qtd/O8NkYITSJktAhek/lGM/DbiwBUVf0YT1BbhZB891vIEXITZBCdk8hUOnx8XPgK27y+QBPLhDE1gA2klGhtnRy6g6QdwNFUa3/a22mlUskUptpBvQ==
+      tamasan238@github/82851113 # ssh-import-id gh:tamasan238'
+    - 'ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAE3+9orXjA/5GTL81Tb3bIXDa5q/57c0gDiUSfYsyxDEnPm5DQIrRMQAvezMn1q9BRHiA7fAAwX84ZciNDj87IoTAGA7NxU9xoT8aSi5RDOeqmhlBW00q7Ib4aaRpE+RaF4SZ2agwrQr9kmDQ4XElSdbDMQshAiMtvO1rip6mMS0Edmgg==
+      tamasan238@github/92774635 # ssh-import-id gh:tamasan238'
+    - 'ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAHHci5e9GyJvqJQ9wRda39ElBwqWYzq0srsp9e+ha9N659KRvAD/2Im08w8xp0m6LyA4Jj4cwGIanB5LhG/ICZWMgFzloqVv+SN+sjQtIfUPl1rVmShWdT6onJTefN4tugZbI32k2JmgaSuS6uYQdTxQeVB2CGqWf8pwK+2jwgvtpYgvg==
+      tamasan238@github/94416974 # ssh-import-id gh:tamasan238'
+    - 'ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBADxkqKmHvyKybbueOyNU2Ecty+QHqti22ABlayNEmVrADYYR3yh1JwmhrzzpGeI0DYM4NSbI8gQ64WK8i+maMBvmwElNTxRTfmwKrTCYcuPuXCysKKRGWLU7vKmK+s67sbCiu15D5A2RyZxm1Z/C4k8dEevRXYwHB1rVkk/d4R/PE1MDQ==
+      tamasan238@github/95844211 # ssh-import-id gh:tamasan238'
+    install-server: true
+  storage:
+    config:
+    - ptable: gpt
+      path: /dev/vda
+      wipe: superblock-recursive
+      preserve: false
+      name: ''
+      grub_device: true
+      type: disk
+      id: disk-vda
+    - device: disk-vda
+      size: 1048576
+      flag: bios_grub
+      number: 1
+      preserve: false
+      grub_device: false
+      offset: 1048576
+      type: partition
+      id: partition-0
+    - device: disk-vda
+      size: 68716331008
+      wipe: superblock
+      number: 2
+      preserve: false
+      grub_device: false
+      offset: 2097152
+      type: partition
+      id: partition-1
+    - fstype: ext4
+      volume: partition-1
+      preserve: false
+      type: format
+      id: format-0
+    - path: /
+      device: format-0
+      type: mount
+      id: mount-0
+  updates: security
+  version: 1
