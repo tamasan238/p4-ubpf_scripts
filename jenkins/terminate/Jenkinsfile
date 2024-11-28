@@ -1,0 +1,17 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Shutdown User VM') {
+            steps {
+                sh '''
+                ssh 192.168.0.80 '
+                cd test/
+                touch test
+                '
+                '''
+            }
+        }
+    }
+}
+
