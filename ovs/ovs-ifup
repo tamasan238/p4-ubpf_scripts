@@ -1,0 +1,5 @@
+#!/bin/sh
+
+switch='ovs-br0'
+sudo ip link set $1 up
+sudo ovs-vsctl add-port ${switch} $1

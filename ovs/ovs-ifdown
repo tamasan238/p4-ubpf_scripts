@@ -1,0 +1,6 @@
+#!/bin/sh
+
+switch='ovs-br1'
+sudo ip addr flush dev $1
+sudo ip link set $1 down
+sudo ovs-vsctl del-port ${switch} $1
