@@ -25,7 +25,7 @@ pipeline {
                 while virsh list --state-running | grep -q p4; do
                   sleep 1
                 done
-                EOF
+EOF
                 '''
             }
         }
