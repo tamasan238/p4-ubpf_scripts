@@ -1,0 +1,20 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('[User] tcp'){
+            steps{
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no user.local '
+                sudo su << InnerEOF
+                iperf3 -c peach.ksl.ci.kyutech.ac.jp
+                InnerEOF
+                '
+                EOF
+                '''
+            }
+        }
+    }
+}
+
