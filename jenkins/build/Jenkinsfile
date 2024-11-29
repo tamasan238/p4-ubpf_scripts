@@ -9,7 +9,7 @@ pipeline {
                 sudo su <<EOF
                 rm /dev/shm/ivshmem
                 /home/iwai/qemu/build/contrib/ivshmem-server/ivshmem-server
-                chown libvirt-qemu:kvm /dev/shm/ivshmem /tmp/ivshmem socket
+                chown libvirt-qemu:kvm /dev/shm/ivshmem /tmp/ivshmem_socket
 EOF
                 '
                 '''
