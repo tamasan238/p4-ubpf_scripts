@@ -10,7 +10,7 @@ pipeline {
                 rm /dev/shm/ivshmem
                 /home/iwai/qemu/build/contrib/ivshmem-server/ivshmem-server
                 chown libvirt-qemu:kvm /dev/shm/ivshmem /tmp/ivshmem socket
-                EOF
+EOF
                 '
                 '''
             }
@@ -20,7 +20,7 @@ pipeline {
                 sh '''
                 ssh sub7.ksl.ci.kyutech.ac.jp <<EOF
                 virsh start p4
-                EOF
+EOF
                 '''
                 sleep time: 30, unit: 'SECONDS'
             }
@@ -34,9 +34,9 @@ pipeline {
                 cd ivshmem-uio
                 sudo modprobe uio
                 sudo insmod ivshmem_uio.ko
-                InnerEOF
+InnerEOF
                 '
-                EOF
+EOF
                 '''
             }
         }
@@ -49,9 +49,9 @@ pipeline {
                 cd ubpf
                 git pull
                 cmake --build build -v --target install
-                InnerEOF
+InnerEOF
                 '
-                EOF
+EOF
                 '''
             }
         }
@@ -62,9 +62,9 @@ pipeline {
                 ssh -o StrictHostKeyChecking=no p4.local '
                 sudo su << InnerEOF
                 p4u
-                InnerEOF
+InnerEOF
                 '
-                EOF
+EOF
                 '''
             }
         }
@@ -75,7 +75,7 @@ pipeline {
                 sudo su <<EOF
                 cd ovs
                 make && make install
-                EOF
+EOF
                 '
                 '''
             }
@@ -87,7 +87,7 @@ pipeline {
                 sudo su <<EOF
                 export PATH=$PATH:/usr/local/share/openvswitch/scripts/
                 ovs-ctl start
-                EOF
+EOF
                 '
                 '''
                 sleep time: 5, unit: 'SECONDS'
@@ -100,7 +100,7 @@ pipeline {
                 sudo su <<EOF
                 export PATH=$PATH:/usr/local/share/openvswitch/scripts/
                 ovs-vsctl set Open_vSwitch . other_config:userspace-tso-enable=true
-                EOF
+EOF
                 '
                 '''
             }
@@ -110,7 +110,7 @@ pipeline {
                 sh '''
                 ssh sub7.ksl.ci.kyutech.ac.jp <<EOF
                 virsh start user
-                EOF
+EOF
                 '''
                 sleep time: 30, unit: 'SECONDS'
             }
@@ -124,9 +124,9 @@ pipeline {
                 cd ivshmem-uio
                 sudo modprobe uio
                 sudo insmod ivshmem_uio.ko
-                InnerEOF
+InnerEOF
                 '
-                EOF
+EOF
                 '''
             }
         }
