@@ -31,11 +31,13 @@ EOF
         }
         stage('Reboot sub7') {
             steps {
-                sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp '
-                sudo reboot
-                '
-                '''
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh '''
+                    ssh sub7.ksl.ci.kyutech.ac.jp '
+                    sudo reboot
+                    '
+                    '''
+                }
             }
         }
     }
