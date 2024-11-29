@@ -1,0 +1,135 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('[sub7] Run ivshmem-server'){
+            steps {
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                rm /dev/shm/ivshmem
+                /home/iwai/qemu/build/contrib/ivshmem-server/ivshmem-server
+                chown libvirt-qemu:kvm /dev/shm/ivshmem /tmp/ivshmem socket
+                EOF
+                '
+                '''
+            }
+        }
+        stage('[sub7] Start P4 VM'){
+            steps {
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp <<EOF
+                virsh start p4
+                EOF
+                '''
+                sleep time: 30, unit: 'SECONDS'
+            }
+        }
+        stage('[p4] Prepare ivshmem'){
+            steps{
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no p4.local '
+                sudo su << InnerEOF
+                cd ivshmem-uio
+                sudo modprobe uio
+                sudo insmod ivshmem_uio.ko
+                InnerEOF
+                '
+                EOF
+                '''
+            }
+        }
+        stage('[p4] Build P4 & uBPF Runtime') {
+            steps{
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no p4.local '
+                sudo su << InnerEOF
+                cd ubpf
+                git pull
+                cmake --build build -v --target install
+                InnerEOF
+                '
+                EOF
+                '''
+            }
+        }
+        stage('[p4] Run uBPF Runtime') {
+            steps{
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no p4.local '
+                sudo su << InnerEOF
+                p4u
+                InnerEOF
+                '
+                EOF
+                '''
+            }
+        }
+        stage('[sub7] Build OVS') {
+            steps {
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                cd ovs
+                make && make install
+                EOF
+                '
+                '''
+            }
+        }
+        stage('[sub7] Run OVS') {
+            steps {
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-ctl start
+                EOF
+                '
+                '''
+                sleep time: 5, unit: 'SECONDS'
+            }
+        }
+        stage('[sub7] Turn off kernel data_path') {
+            steps {
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-vsctl set Open_vSwitch . other_config:userspace-tso-enable=true
+                EOF
+                '
+                '''
+            }
+        }
+        stage('[sub7] Start User VM'){
+            steps {
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp <<EOF
+                virsh start user
+                EOF
+                '''
+                sleep time: 30, unit: 'SECONDS'
+            }
+        }
+        stage('[User] Prepare ivshmem'){
+            steps{
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no user.local '
+                sudo su << InnerEOF
+                cd ivshmem-uio
+                sudo modprobe uio
+                sudo insmod ivshmem_uio.ko
+                InnerEOF
+                '
+                EOF
+                '''
+            }
+        }
+    }
+}
+
