@@ -5,11 +5,11 @@ pipeline {
         stage('[sub7] Run ivshmem-server'){
             steps {
                 sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp '
-                sudo su <<EOF
-                rm /dev/shm/ivshmem
-                nohup /home/iwai/qemu/build/contrib/ivshmem-server/ivshmem-server -F &
-                chown libvirt-qemu:kvm /dev/shm/ivshmem /tmp/ivshmem_socket
+                ssh sub7.ksl.ci.kyutech.ac.jp <<EOF
+                cd p4-ubpf_scripts
+                git pull
+                cd ovs
+                sudo ./shm.sh
 EOF
                 '
                 '''
