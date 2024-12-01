@@ -40,6 +40,19 @@ EOF
                 '''
             }
         }
+        stage('[p4] Update ubpf repository') {
+            steps{
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
+                cd ubpf
+                git pull
+InnerEOF
+                '
+EOF
+                '''
+            }
+        }
         stage('[p4] Build P4 & uBPF Runtime') {
             steps{
                 sh '''
@@ -47,7 +60,6 @@ EOF
                 ssh -o StrictHostKeyChecking=no p4.local '
                 sudo su << InnerEOF
                 cd ubpf
-                git pull
                 cmake --build build -v --target install
 InnerEOF
                 '
