@@ -88,7 +88,7 @@ EOF
                 sudo su << InnerEOF
                 p4c-ubpf ~iwai/p4c/testdata/p4_16_samples/ubpf.p4 -o ~iwai/p4c/testdata/p4_16_samples/ubpf.c --emit-externs
                 clang -O2 -target bpf -c ~iwai/p4c/testdata/p4_16_samples/ubpf_ext.c -o ~iwai/p4c/testdata/p4_16_samples/ubpf.o -I ~iwai/p4c/backends/ubpf/runtime -include ~iwai/p4c/testdata/p4_16_samples/ubpf_ext.h -include ~iwai/p4c/testdata/p4_16_samples/ubpf.c
-                ~iwai/ubpf/build/bin/ubpf_test ~iwai/p4c/testdata/p4_16_samples/ubpf.o > /dev/null&
+                setsid ~iwai/ubpf/build/bin/ubpf_test ~iwai/p4c/testdata/p4_16_samples/ubpf.o > /dev/null &
 InnerEOF
                 '
 EOF
@@ -111,6 +111,9 @@ EOF
                 ssh sub7.ksl.ci.kyutech.ac.jp '
                 sudo su <<EOF
                 cd ovs
+                make clean
+                ./boot.sh
+                ./configure
                 make -j$(nproc) && make install
 EOF
                 '
