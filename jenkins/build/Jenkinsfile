@@ -101,6 +101,16 @@ EOF
                 '''
             }
         }
+        stage('[sub7] Update OVS repository') {
+            steps{
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
+                cd ovs
+                git pull
+EOF
+                '''
+            }
+        }
         stage('[sub7] Build OVS') {
             steps {
                 sh '''
