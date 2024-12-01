@@ -86,7 +86,7 @@ EOF
                 ssh sub7.ksl.ci.kyutech.ac.jp << EOF
                 ssh -o StrictHostKeyChecking=no p4.local '
                 sudo su << InnerEOF
-                ./p4-ubpf_scripts/p4/prepare.sh
+                source ./p4-ubpf_scripts/p4/prepare.sh
                 p4u
 InnerEOF
                 '
