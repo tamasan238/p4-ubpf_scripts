@@ -91,7 +91,7 @@ EOF
                 export UBPFRUNTIME=~iwai/p4c/backends/ubpf/runtime
                 export P4FILENAME=$P4SAMPLE/ubpf
                 p4c-ubpf $P4FILENAME.p4 -o $P4FILENAME.c --emit-externs
-                clang -O2 -target bpf -c $P4FILENAME\_ext.c -o $P4FILENAME.o -I $UBPFRUNTIME -include $P4FILENAME\_ext.h -include $P4FILENAME.c
+                clang -O2 -target bpf -c ${P4FILENAME}_ext.c -o ${P4FILENAME}.o -I $UBPFRUNTIME -include ${P4FILENAME}_ext.h -include ${P4FILENAME}.c
                 $UBPFBIN/ubpf_test $P4FILENAME.o &
 InnerEOF
                 '
