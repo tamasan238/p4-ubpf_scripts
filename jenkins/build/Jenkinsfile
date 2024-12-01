@@ -107,7 +107,7 @@ EOF
                 ssh sub7.ksl.ci.kyutech.ac.jp '
                 sudo su <<EOF
                 cd ovs
-                make && make install
+                make -j$(nproc) && make install
 EOF
                 '
                 '''
