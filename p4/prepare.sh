@@ -1,5 +1,5 @@
 echo "You need to run on root."
-cat << "EOL" >> /root/.bashrc
+
 export P4SAMPLE=~iwai/p4c/testdata/p4_16_samples
 export UBPFBIN=~iwai/ubpf/build/bin
 export UBPFRUNTIME=~iwai/p4c/backends/ubpf/runtime
@@ -16,4 +16,3 @@ alias run-ubpf='$UBPFBIN/ubpf_test $P4FILENAME.o'
 
 # Concat
 alias p4u='p4-c && c-ubpf && run-ubpf'
-EOL
