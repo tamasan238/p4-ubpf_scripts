@@ -138,6 +138,18 @@ EOF
                 sh '''
                 ssh sub7.ksl.ci.kyutech.ac.jp '
                 sudo su <<EOF
+                iptables -A INPUT -i enp2s0f1np1 -j DROP
+                iptables -A FORWARD -i enp2s0f1np1 -j DROP
+EOF
+                '
+                '''
+            }
+        }
+        stage('[sub7] Turn on Userspace TCP Segmentation Offload') {
+            steps {
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
                 export PATH=$PATH:/usr/local/share/openvswitch/scripts/
                 ovs-vsctl set Open_vSwitch . other_config:userspace-tso-enable=true
 EOF
