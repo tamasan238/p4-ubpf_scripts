@@ -6,7 +6,7 @@ pipeline {
             steps{
                 sh '''
                 ssh sub7.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no user.local '
+                ssh -o StrictHostKeyChecking=no sub7-vm1.ksl.ci.kyutech.ac.jp '
                 sudo su << InnerEOF
                 iperf3 -c peach.ksl.ci.kyutech.ac.jp
                 InnerEOF
