@@ -43,8 +43,9 @@ EOF
                 ssh -o StrictHostKeyChecking=no p4.local '
                 sudo su << InnerEOF
                 cd ivshmem-uio
-                sudo modprobe uio
-                sudo insmod ivshmem_uio.ko
+                modprobe uio
+                make
+                insmod ivshmem_uio.ko
 InnerEOF
                 '
 EOF
@@ -186,8 +187,9 @@ EOF
                 ssh -o StrictHostKeyChecking=no sub7-vm1.ksl.ci.kyutech.ac.jp '
                 sudo su << InnerEOF
                 cd ivshmem-uio
-                sudo modprobe uio
-                sudo insmod ivshmem_uio.ko
+                modprobe uio
+                make
+                insmod ivshmem_uio.ko
 InnerEOF
                 '
 EOF
