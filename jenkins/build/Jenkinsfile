@@ -6,7 +6,7 @@ pipeline {
             steps {
                 sh '''
                 ssh sub7.ksl.ci.kyutech.ac.jp '<< EOF
-                sudo ~iwai/qemu/build/contrib/ivshmem-server/ivshmem-server
+                sudo ~iwai/qemu/build/contrib/ivshmem-server/ivshmem-server &
                 sudo chown libvirt-qemu:kvm /dev/shm/ivshmem /tmp/ivshmem_socket
 EOF
                 '
