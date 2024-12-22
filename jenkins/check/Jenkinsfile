@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('[User] Latency'){
+            steps{
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
+
+                echo "[TCP]"
+                echo "netperf -t omni -H sub7-vm1.ksl.ci.kyutech.ac.jp -- -d rr -T TCP -k MIN_LATENCY,MEAN_LATENCY,P90_LATENCY,P99_LATENCY,MAX_LATENCY,STDDEV_LATENCY"
+                netperf -t omni -H sub7-vm1.ksl.ci.kyutech.ac.jp -- -d rr -T TCP -k MIN_LATENCY,MEAN_LATENCY,P90_LATENCY,P99_LATENCY,MAX_LATENCY,STDDEV_LATENCY
+
+                echo "[UDP]"
+                echo "netperf -t omni -H sub7-vm1.ksl.ci.kyutech.ac.jp -- -d rr -T UDP -k MIN_LATENCY,MEAN_LATENCY,P90_LATENCY,P99_LATENCY,MAX_LATENCY,STDDEV_LATENCY"
+                netperf -t omni -H sub7-vm1.ksl.ci.kyutech.ac.jp -- -d rr -T UDP -k MIN_LATENCY,MEAN_LATENCY,P90_LATENCY,P99_LATENCY,MAX_LATENCY,STDDEV_LATENCY
+EOF
+                '''
+            }
+        }
+        stage('[User] Throughput'){
+            steps{
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
+
+                echo "[TCP]"
+                echo "netperf -H sub7-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM"
+                netperf -H sub7-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM
+
+                echo "[UDP]"
+                echo "netperf -H sub7-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 1472"
+                netperf -H sub7-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 1472
+EOF
+                '''
+            }
+        }
+    }
+}
+
