@@ -2,12 +2,11 @@ pipeline {
     agent any
 
     stages {
-        stage('[sub7] Run ivshmem-server'){
+        stage('[sub7] Check running ivshmem-server'){
             steps {
                 sh '''
                 ssh sub7.ksl.ci.kyutech.ac.jp '<< EOF
-                sudo ~iwai/qemu/build/contrib/ivshmem-server/ivshmem-server &
-                sudo chown libvirt-qemu:kvm /dev/shm/ivshmem /tmp/ivshmem_socket
+                pgrep ivshmem-server
 EOF
                 '
                 '''

@@ -1,0 +1,12 @@
+[Unit]
+Description=Start ivshmem-server and set permissions
+After=network.target
+
+[Service]
+ExecStart=/root/ivshmem_start.sh
+ExecStart=/root/ivshmem_stop.sh
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
