@@ -1,0 +1,70 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('[sub7] Shutdown VMs') {
+            steps {
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp <<EOF
+                virsh shutdown user
+                virsh shutdown p4
+                while virsh list --state-running | grep -q user; do
+                  sleep 1
+                done
+                while virsh list --state-running | grep -q p4; do
+                  sleep 1
+                done
+EOF
+                '''
+            }
+        }
+        stage('[sub7] Stop OVS') {
+            steps{
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
+                ovs-ctl stop
+EOF
+                '''
+            }
+        }
+        stage('[sub7] Build OVS') {
+            steps {
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                cd ~iwai/ovs1/ovs
+                make clean
+                ./boot.sh
+                ./configure
+                make -j$(nproc) && make install
+EOF
+                '
+                '''
+            }
+        }
+        stage('[sub7] Run OVS') {
+            steps {
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-ctl start
+EOF
+                '
+                '''
+                sleep time: 5, unit: 'SECONDS'
+            }
+        }
+        stage('[sub7] Start User VM'){
+            steps {
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp <<EOF
+                virsh start user
+EOF
+                '''
+                sleep time: 30, unit: 'SECONDS'
+            }
+        }
+    }
+}
+

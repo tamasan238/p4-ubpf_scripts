@@ -2,81 +2,43 @@ pipeline {
     agent any
 
     stages {
-        stage('[sub7] Run ivshmem-server'){
-            steps {
-                sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp '<< EOF
-                cd p4-ubpf_scripts
-                git pull
-                cd ovs
-                ./shm.sh
-EOF
-                '
-                '''
-            }
-        }
-        stage('[sub7] Start P4 VM'){
+        stage('[sub7] Shutdown VMs') {
             steps {
                 sh '''
                 ssh sub7.ksl.ci.kyutech.ac.jp <<EOF
-                virsh start p4
-EOF
-                '''
-                sleep time: 30, unit: 'SECONDS'
-            }
-        }
-        stage('[p4] Prepare ivshmem'){
-            steps{
-                sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no p4.local '
-                sudo su << InnerEOF
-                cd ivshmem-uio
-                sudo modprobe uio
-                sudo insmod ivshmem_uio.ko
-InnerEOF
-                '
+                virsh shutdown user
+                virsh shutdown p4
+                while virsh list --state-running | grep -q user; do
+                  sleep 1
+                done
+                while virsh list --state-running | grep -q p4; do
+                  sleep 1
+                done
 EOF
                 '''
             }
         }
-        stage('[p4] Update ubpf repository') {
+        stage('[sub7] Stop OVS') {
             steps{
                 sh '''
                 ssh sub7.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
-                cd ubpf
-                git pull
-InnerEOF
-                '
+                ovs-ctl stop
 EOF
                 '''
             }
         }
-        stage('[p4] Build P4 & uBPF Runtime') {
-            steps{
+        stage('[sub7] Build OVS') {
+            steps {
                 sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no p4.local '
-                sudo su << InnerEOF
-                cd ubpf
-                cmake --build build -v --target install
-InnerEOF
-                '
+                ssh sub7.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                cd ~iwai/ovs32/ovs
+                make clean
+                ./boot.sh
+                ./configure
+                make -j$(nproc) && make install
 EOF
-                '''
-            }
-        }
-        stage('[p4] Update scripts repository') {
-            steps{
-                sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
-                cd p4-ubpf_scripts
-                git pull
-InnerEOF
                 '
-EOF
                 '''
             }
         }
@@ -93,31 +55,6 @@ EOF
 InnerEOF
                 '
 EOF
-                '''
-            }
-        }
-        stage('[sub7] Update OVS repository') {
-            steps{
-                sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
-                cd ovs
-                git pull
-EOF
-                '''
-            }
-        }
-        stage('[sub7] Build OVS') {
-            steps {
-                sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp '
-                sudo su <<EOF
-                cd ovs
-                make clean
-                ./boot.sh
-                ./configure
-                make -j$(nproc) && make install
-EOF
-                '
                 '''
             }
         }
