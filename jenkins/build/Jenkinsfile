@@ -6,10 +6,8 @@ pipeline {
             steps {
                 sh '''
                 ssh sub7.ksl.ci.kyutech.ac.jp '<< EOF
-                cd p4-ubpf_scripts
-                git pull
-                cd ovs
-                sudo ./shm.sh
+                sudo ~iwai/qemu/build/contrib/ivshmem-server/ivshmem-server
+                sudo chown libvirt-qemu:kvm /dev/shm/ivshmem /tmp/ivshmem_socket
 EOF
                 '
                 '''

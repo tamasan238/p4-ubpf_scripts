@@ -33,11 +33,10 @@ EOF
         stage('[sub7] Stop ivshmem-server'){
             steps {
                 sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp '<< EOF
-                cd p4-ubpf_scripts
-                git pull
-                cd ovs
-                sudo ./shm-stop.sh
+                ssh sub7.ksl.ci.kyutech.ac.jp '
+                sudo su<< EOF
+                kill $(pgrep ivshmem-server)
+                rm /dev/shm/ivshmem
 EOF
                 '
                 '''
