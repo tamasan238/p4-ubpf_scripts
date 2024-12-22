@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('[sub7] Switch datapath_type to netdev') {
+        stage('[sub7] Switch datapath_type to system') {
             steps {
                 sh '''
                 ssh sub7.ksl.ci.kyutech.ac.jp '
