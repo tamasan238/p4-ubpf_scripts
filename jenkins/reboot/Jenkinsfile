@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+
+    stages {
+        stage("Notify") {
+            steps {
+                slackSend channel: 'sv-sub7', message: 'sub7はまもなく再起動します．', tokenCredentialId: '0ca5378a-4c56-4314-95d3-d701b238c8b7'
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp '
+                sudo wall "sub7はまもなく再起動します．"
+                '
+                '''
+                sleep time: 10, unit: 'SECONDS'
+            }
+        }
+        stage('Shutdown VMs') {
+            steps {
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp <<EOF
+                virsh shutdown user
+                virsh shutdown p4
+                while virsh list --state-running | grep -q user; do
+                  sleep 1
+                done
+                while virsh list --state-running | grep -q p4; do
+                  sleep 1
+                done
+EOF
+                '''
+            }
+        }
+        stage('Reboot sub7') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh '''
+                    ssh sub7.ksl.ci.kyutech.ac.jp '
+                    sudo reboot
+                    '
+                    '''
+                }
+            }
+        }
+        stage('Wait for Reboot') {
+            steps {
+                sleep time: 6, unit: 'MINUTES'
+            }
+        }
+        stage('Build & Start') {
+            steps {
+                build job: 'P4 Shield/build'
+            }
+        }
+    }
+}
+

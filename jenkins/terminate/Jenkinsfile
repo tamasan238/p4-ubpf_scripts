@@ -2,17 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage("Notify") {
-            steps {
-                slackSend channel: 'sv-sub7', message: 'sub7はまもなく再起動します．', tokenCredentialId: '0ca5378a-4c56-4314-95d3-d701b238c8b7'
-                sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp '
-                sudo wall "sub7はまもなく再起動します．"
-                '
-                '''
-                sleep time: 10, unit: 'SECONDS'
-            }
-        }
         stage('Shutdown VMs') {
             steps {
                 sh '''
@@ -29,15 +18,29 @@ EOF
                 '''
             }
         }
-        stage('Reboot sub7') {
+        stage('[sub7] Stop OVS') {
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    sh '''
-                    ssh sub7.ksl.ci.kyutech.ac.jp '
-                    sudo reboot
-                    '
-                    '''
-                }
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-ctl stop
+EOF
+                '
+                '''
+            }
+        }
+        stage('[sub7] Stop ivshmem-server'){
+            steps {
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp '<< EOF
+                cd p4-ubpf_scripts
+                git pull
+                cd ovs
+                ./shm-stop.sh
+EOF
+                '
+                '''
             }
         }
     }

@@ -42,10 +42,10 @@ EOF
                 ssh sub7.ksl.ci.kyutech.ac.jp << EOF
                 ssh -o StrictHostKeyChecking=no p4.local '
                 sudo su << InnerEOF
-                cd ivshmem-uio
-                modprobe uio
-                make
-                insmod ivshmem_uio.ko
+                cd p4-ubpf_scripts
+                git pull
+                cd p4
+                ./shm.sh
 InnerEOF
                 '
 EOF
@@ -186,10 +186,10 @@ EOF
                 ssh sub7.ksl.ci.kyutech.ac.jp << EOF
                 ssh -o StrictHostKeyChecking=no sub7-vm1.ksl.ci.kyutech.ac.jp '
                 sudo su << InnerEOF
-                cd ivshmem-uio
-                modprobe uio
-                make
-                insmod ivshmem_uio.ko
+                cd p4-ubpf_scripts
+                git pull
+                cd user
+                ./shm.sh
 InnerEOF
                 '
 EOF
