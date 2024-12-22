@@ -166,6 +166,11 @@ EOF
                 '''
             }
         }
+        stage('Check status') {
+            steps {
+                build job: 'P4 Shield/check network'
+            }
+        }
     }
 }
 
