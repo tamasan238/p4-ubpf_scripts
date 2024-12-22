@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 ExecStart=/root/ivshmem_start.sh
-ExecStart=/root/ivshmem_stop.sh
+ExecStop=/root/ivshmem_stop.sh
 Restart=always
 User=root
 
