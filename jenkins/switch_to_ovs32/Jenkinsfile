@@ -19,11 +19,14 @@ EOF
             }
         }
         stage('[sub7] Stop OVS') {
-            steps{
+            steps {
                 sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
+                ssh sub7.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
                 ovs-ctl stop
 EOF
+                '
                 '''
             }
         }
