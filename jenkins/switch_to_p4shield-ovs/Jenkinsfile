@@ -7,11 +7,7 @@ pipeline {
                 sh '''
                 ssh sub7.ksl.ci.kyutech.ac.jp <<EOF
                 virsh shutdown user
-                virsh shutdown p4
                 while virsh list --state-running | grep -q user; do
-                  sleep 1
-                done
-                while virsh list --state-running | grep -q p4; do
                   sleep 1
                 done
 EOF
@@ -27,97 +23,11 @@ EOF
                 '''
             }
         }
-        stage('[sub7] Build OVS') {
+        stage('run init build') {
             steps {
-                sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp '
-                sudo su <<EOF
-                cd ~iwai/ovs32/ovs
-                make clean
-                ./boot.sh
-                ./configure
-                make -j$(nproc) && make install
-EOF
-                '
-                '''
-            }
-        }
-        stage('[p4] Run uBPF Runtime') {
-            steps{
-                sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no p4.local '
-                sudo su << InnerEOF
-                echo "\n\nYOU HAVE TO KILL ubpf_test AND START ubpf_test MANUALLY!!\n\n\n"
-                p4c-ubpf ~iwai/p4c/testdata/p4_16_samples/ubpf.p4 -o ~iwai/p4c/testdata/p4_16_samples/ubpf.c --emit-externs
-                clang -O2 -target bpf -c ~iwai/p4c/testdata/p4_16_samples/ubpf_ext.c -o ~iwai/p4c/testdata/p4_16_samples/ubpf.o -I ~iwai/p4c/backends/ubpf/runtime -include ~iwai/p4c/testdata/p4_16_samples/ubpf_ext.h -include ~iwai/p4c/testdata/p4_16_samples/ubpf.c
-                setsid ~iwai/ubpf/build/bin/ubpf_test ~iwai/p4c/testdata/p4_16_samples/ubpf.o > /dev/null &
-InnerEOF
-                '
-EOF
-                '''
-            }
-        }
-        stage('[sub7] Run OVS') {
-            steps {
-                sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp '
-                sudo su <<EOF
-                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
-                ovs-ctl start
-EOF
-                '
-                '''
-                sleep time: 5, unit: 'SECONDS'
-            }
-        }
-        stage('[sub7] Turn off kernel data_path') {
-            steps {
-                sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp '
-                sudo su <<EOF
-                iptables -A INPUT -i enp2s0f1np1 -j DROP
-                iptables -A FORWARD -i enp2s0f1np1 -j DROP
-EOF
-                '
-                '''
-            }
-        }
-        stage('[sub7] Turn on Userspace TCP Segmentation Offload') {
-            steps {
-                sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp '
-                sudo su <<EOF
-                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
-                ovs-vsctl set Open_vSwitch . other_config:userspace-tso-enable=true
-EOF
-                '
-                '''
-            }
-        }
-        stage('[sub7] Start User VM'){
-            steps {
-                sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp <<EOF
-                virsh start user
-EOF
-                '''
-                sleep time: 30, unit: 'SECONDS'
-            }
-        }
-        stage('[User] Prepare ivshmem'){
-            steps{
-                sh '''
-                ssh sub7.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no sub7-vm1.ksl.ci.kyutech.ac.jp '
-                sudo su << InnerEOF
-                cd ivshmem-uio
-                sudo modprobe uio
-                sudo insmod ivshmem_uio.ko
-InnerEOF
-                '
-EOF
-                '''
+                script {
+                    evaluate new File('../build/Jenkinsfile').text
+                }
             }
         }
     }
