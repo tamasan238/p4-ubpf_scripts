@@ -3,8 +3,8 @@ Description=Start ivshmem-server and set permissions
 After=network.target
 
 [Service]
-ExecStart=/root/ivshmem_start.sh
-ExecStop=/root/ivshmem_stop.sh
+ExecStart=/root/ivshmem-start.sh
+ExecStop=/root/ivshmem-stop.sh
 Restart=always
 User=root
 
