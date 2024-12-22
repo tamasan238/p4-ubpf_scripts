@@ -2,6 +2,30 @@ pipeline {
     agent any
 
     stages {
+        stage('[sub7] Turn on kernel data_path') {
+            steps {
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                iptables -D INPUT -i enp2s0f1np1 -j DROP
+                iptables -D FORWARD -i enp2s0f1np1 -j DROP
+EOF
+                '
+                '''
+            }
+        }
+        stage('[sub7] Turn off Userspace TCP Segmentation Offload') {
+            steps {
+                sh '''
+                ssh sub7.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-vsctl set Open_vSwitch . other_config:userspace-tso-enable=false
+EOF
+                '
+                '''
+            }
+        }
         stage('[sub7] Switch datapath_type to system') {
             steps {
                 sh '''
