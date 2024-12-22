@@ -9,7 +9,7 @@ pipeline {
                 cd p4-ubpf_scripts
                 git pull
                 cd ovs
-                ./shm.sh
+                sudo ./shm.sh
 EOF
                 '
                 '''

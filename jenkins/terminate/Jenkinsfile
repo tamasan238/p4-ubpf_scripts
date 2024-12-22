@@ -37,7 +37,7 @@ EOF
                 cd p4-ubpf_scripts
                 git pull
                 cd ovs
-                ./shm-stop.sh
+                sudo ./shm-stop.sh
 EOF
                 '
                 '''
