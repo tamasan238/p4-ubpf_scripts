@@ -36,7 +36,8 @@ EOF
                 ssh sub7.ksl.ci.kyutech.ac.jp '
                 sudo su<< EOF
                 kill $(pgrep ivshmem-server)
-                rm /dev/shm/ivshmem
+                rm /dev/shm/ivshmem 2> /dev/null
+                rm /tmp/ivshmem_socket 2> /dev/null
 EOF
                 '
                 '''
