@@ -4,10 +4,6 @@ pipeline {
     stages {
         stage('[sub7] Check running ivshmem-server'){
             steps {
-                echo "sub7にて，以下のコマンドを実行します．
-                sudo ~iwai/qemu/build/contrib/ivshmem-server/ivshmem-server &
-                sleep 1
-                sudo chown libvirt-qemu:kvm /dev/shm/ivshmem /tmp/ivshmem_socket"
                 input message: 'ivshmem-serverを起動して，Enterを押してください．'
             }
         }
