@@ -2,14 +2,23 @@ pipeline {
     agent any
 
     stages {
-        stage('[sub7] Shutdown VMs') {
+        stage('Shutdown VMs') {
             steps {
                 sh '''
                 ssh sub7.ksl.ci.kyutech.ac.jp <<EOF
-                virsh shutdown user
-                while virsh list --state-running | grep -q user; do
-                  sleep 1
-                done
+                if virsh list --state-running | grep -q user; then
+                  virsh shutdown user
+                  while virsh list --state-running | grep -q user; do
+                    sleep 1
+                  done
+                fi
+
+                if virsh list --state-running | grep -q p4; then
+                  virsh shutdown p4
+                  while virsh list --state-running | grep -q p4; do
+                    sleep 1
+                  done
+                fi
 EOF
                 '''
             }
