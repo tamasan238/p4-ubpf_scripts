@@ -121,8 +121,8 @@ EOF
                 sh '''
                 ssh olive.ksl.ci.kyutech.ac.jp '
                 sudo su <<EOF
-                iptables -A INPUT -i enp2s0f1np1 -j DROP
-                iptables -A FORWARD -i enp2s0f1np1 -j DROP
+                iptables -A INPUT -i enp3s0f1 -j DROP
+                iptables -A FORWARD -i enp3s0f1 -j DROP
 EOF
                 '
                 '''
