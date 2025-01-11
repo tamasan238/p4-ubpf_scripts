@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Shutdown VMs') {
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp <<EOF
+                if virsh list --state-running | grep -q user; then
+                  virsh shutdown user
+                  while virsh list --state-running | grep -q user; do
+                    sleep 1
+                  done
+                fi
+
+                if virsh list --state-running | grep -q p4; then
+                  virsh shutdown p4
+                  while virsh list --state-running | grep -q p4; do
+                    sleep 1
+                  done
+                fi
+EOF
+                '''
+            }
+        }
+        stage('[olive] Stop OVS') {
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-ctl stop
+EOF
+                '
+                '''
+            }
+        }
+        stage('[olive] Stop ivshmem-server'){
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp '
+                sudo su<< EOF
+                kill $(pgrep ivshmem-server)
+                rm /dev/shm/ivshmem 2> /dev/null
+                rm /tmp/ivshmem_socket 2> /dev/null
+EOF
+                '
+                '''
+            }
+        }
+    }
+}
+

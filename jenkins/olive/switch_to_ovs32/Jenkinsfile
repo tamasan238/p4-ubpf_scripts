@@ -1,0 +1,78 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Shutdown VMs') {
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp <<EOF
+                if virsh list --state-running | grep -q user; then
+                  virsh shutdown user
+                  while virsh list --state-running | grep -q user; do
+                    sleep 1
+                  done
+                fi
+
+                if virsh list --state-running | grep -q p4; then
+                  virsh shutdown p4
+                  while virsh list --state-running | grep -q p4; do
+                    sleep 1
+                  done
+                fi
+EOF
+                '''
+            }
+        }
+        stage('[olive] Stop OVS') {
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-ctl stop
+EOF
+                '
+                '''
+            }
+        }
+        stage('[olive] Build OVS') {
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                cd ~iwai/ovs32/ovs
+                make clean
+                ./boot.sh
+                ./configure
+                make -j$(nproc) && make install
+EOF
+                '
+                '''
+            }
+        }
+        stage('[olive] Run OVS') {
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-ctl start
+EOF
+                '
+                '''
+                sleep time: 5, unit: 'SECONDS'
+            }
+        }
+        stage('[olive] Start User VM'){
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp <<EOF
+                virsh start user
+EOF
+                '''
+                sleep time: 30, unit: 'SECONDS'
+            }
+        }
+    }
+}
+

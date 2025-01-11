@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('[olive] Turn on kernel data_path') {
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                iptables -D INPUT -i enp3s0f1 -j DROP
+                iptables -D FORWARD -i enp3s0f1 -j DROP
+EOF
+                '
+                '''
+            }
+        }
+        stage('[olive] Turn off Userspace TCP Segmentation Offload') {
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-vsctl set Open_vSwitch . other_config:userspace-tso-enable=false
+EOF
+                '
+                '''
+            }
+        }
+        stage('[olive] Switch datapath_type to system') {
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-vsctl set bridge ovsbr1 datapath_type=system
+EOF
+                '
+                '''
+                sleep time: 5, unit: 'SECONDS'
+            }
+        }
+    }
+}
+

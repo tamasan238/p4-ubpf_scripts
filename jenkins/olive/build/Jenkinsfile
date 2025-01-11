@@ -1,0 +1,176 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('[olive] Check running ivshmem-server'){
+            steps {
+                input message: 'ivshmem-serverを起動して，Enterを押してください．'
+            }
+        }
+        stage('[olive] Start P4 VM'){
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp <<EOF
+                virsh start p4
+EOF
+                '''
+                sleep time: 30, unit: 'SECONDS'
+            }
+        }
+        stage('[p4] Prepare ivshmem'){
+            steps{
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no p4.local '
+                sudo su << InnerEOF
+                cd p4-ubpf_scripts
+                git pull
+                cd p4
+                ./shm.sh
+InnerEOF
+                '
+EOF
+                '''
+            }
+        }
+        stage('[p4] Update ubpf repository') {
+            steps{
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
+                cd ubpf
+                git pull
+InnerEOF
+                '
+EOF
+                '''
+            }
+        }
+        stage('[p4] Build P4 & uBPF Runtime') {
+            steps{
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no p4.local '
+                sudo su << InnerEOF
+                cd ubpf
+                cmake --build build -v --target install
+InnerEOF
+                '
+EOF
+                '''
+            }
+        }
+        stage('[p4] Update scripts repository') {
+            steps{
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
+                cd p4-ubpf_scripts
+                git pull
+InnerEOF
+                '
+EOF
+                '''
+            }
+        }
+        stage('[p4] Run uBPF Runtime') {
+            steps {
+                input message: 'p4.localにてp4uを実行して，Enterを押してください．'
+            }
+        }
+        stage('[olive] Update OVS repository') {
+            steps{
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp << EOF
+                cd ovs
+                git pull
+EOF
+                '''
+            }
+        }
+        stage('[olive] Build OVS') {
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                cd ovs
+                make clean
+                ./boot.sh
+                ./configure
+                make -j$(nproc) && make install
+EOF
+                '
+                '''
+            }
+        }
+        stage('[olive] Run OVS') {
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-ctl start
+EOF
+                '
+                '''
+                sleep time: 5, unit: 'SECONDS'
+            }
+        }
+        stage('[olive] Turn off kernel data_path') {
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                iptables -A INPUT -i enp2s0f1np1 -j DROP
+                iptables -A FORWARD -i enp2s0f1np1 -j DROP
+EOF
+                '
+                '''
+            }
+        }
+        stage('[olive] Turn on Userspace TCP Segmentation Offload') {
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-vsctl set Open_vSwitch . other_config:userspace-tso-enable=true
+EOF
+                '
+                '''
+            }
+        }
+        stage('[olive] Start User VM'){
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp <<EOF
+                virsh start user
+EOF
+                '''
+                sleep time: 30, unit: 'SECONDS'
+            }
+        }
+        stage('[User] Prepare ivshmem'){
+            steps{
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no olive-vm1.ksl.ci.kyutech.ac.jp '
+                sudo su << InnerEOF
+                cd p4-ubpf_scripts
+                git pull
+                cd user
+                ./shm.sh
+InnerEOF
+                '
+EOF
+                '''
+            }
+        }
+        stage('Check status') {
+            steps {
+                build job: 'P4 Shield - olive/check network'
+            }
+        }
+    }
+}
+
