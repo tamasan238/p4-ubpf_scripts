@@ -1,0 +1,276 @@
+iwai@olive:~$ bash test.sh
+パケットサイズ 6 (TCP) の測定を開始します...
+MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Recv   Send    Send                          
+Socket Socket  Message  Elapsed              
+Size   Size    Size     Time     Throughput  
+bytes  bytes   bytes    secs.    10^6bits/sec  
+
+131072  16384      6    10.00     233.93   
+パケットサイズ 6 (TCP) の測定が終了しました。ログを tcp_64.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 70 (TCP) の測定を開始します...
+MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Recv   Send    Send                          
+Socket Socket  Message  Elapsed              
+Size   Size    Size     Time     Throughput  
+bytes  bytes   bytes    secs.    10^6bits/sec  
+
+131072  16384     70    10.00    2573.93   
+パケットサイズ 70 (TCP) の測定が終了しました。ログを tcp_128.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 198 (TCP) の測定を開始します...
+MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Recv   Send    Send                          
+Socket Socket  Message  Elapsed              
+Size   Size    Size     Time     Throughput  
+bytes  bytes   bytes    secs.    10^6bits/sec  
+
+131072  16384    198    10.00    3118.75   
+パケットサイズ 198 (TCP) の測定が終了しました。ログを tcp_256.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 454 (TCP) の測定を開始します...
+MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Recv   Send    Send                          
+Socket Socket  Message  Elapsed              
+Size   Size    Size     Time     Throughput  
+bytes  bytes   bytes    secs.    10^6bits/sec  
+
+131072  16384    454    10.02    3483.26   
+パケットサイズ 454 (TCP) の測定が終了しました。ログを tcp_512.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 966 (TCP) の測定を開始します...
+MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Recv   Send    Send                          
+Socket Socket  Message  Elapsed              
+Size   Size    Size     Time     Throughput  
+bytes  bytes   bytes    secs.    10^6bits/sec  
+
+131072  16384    966    10.02    3157.03   
+パケットサイズ 966 (TCP) の測定が終了しました。ログを tcp_1024.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 1222 (TCP) の測定を開始します...
+MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Recv   Send    Send                          
+Socket Socket  Message  Elapsed              
+Size   Size    Size     Time     Throughput  
+bytes  bytes   bytes    secs.    10^6bits/sec  
+
+131072  16384   1222    10.01    3035.49   
+パケットサイズ 1222 (TCP) の測定が終了しました。ログを tcp_1280.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 1460 (TCP) の測定を開始します...
+MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Recv   Send    Send                          
+Socket Socket  Message  Elapsed              
+Size   Size    Size     Time     Throughput  
+bytes  bytes   bytes    secs.    10^6bits/sec  
+
+131072  16384   1460    10.00    3158.36   
+パケットサイズ 1460 (TCP) の測定が終了しました。ログを tcp_1518.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 1990 (TCP) の測定を開始します...
+MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Recv   Send    Send                          
+Socket Socket  Message  Elapsed              
+Size   Size    Size     Time     Throughput  
+bytes  bytes   bytes    secs.    10^6bits/sec  
+
+131072  16384   1990    10.02    3346.62   
+パケットサイズ 1990 (TCP) の測定が終了しました。ログを tcp_2048.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 4038 (TCP) の測定を開始します...
+MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Recv   Send    Send                          
+Socket Socket  Message  Elapsed              
+Size   Size    Size     Time     Throughput  
+bytes  bytes   bytes    secs.    10^6bits/sec  
+
+131072  16384   4038    10.01    3338.51   
+パケットサイズ 4038 (TCP) の測定が終了しました。ログを tcp_4096.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 8134 (TCP) の測定を開始します...
+MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Recv   Send    Send                          
+Socket Socket  Message  Elapsed              
+Size   Size    Size     Time     Throughput  
+bytes  bytes   bytes    secs.    10^6bits/sec  
+
+131072  16384   8134    10.01    2928.30   
+パケットサイズ 8134 (TCP) の測定が終了しました。ログを tcp_8192.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 16326 (TCP) の測定を開始します...
+MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Recv   Send    Send                          
+Socket Socket  Message  Elapsed              
+Size   Size    Size     Time     Throughput  
+bytes  bytes   bytes    secs.    10^6bits/sec  
+
+131072  16384  16326    10.00    3440.11   
+パケットサイズ 16326 (TCP) の測定が終了しました。ログを tcp_16384.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 32710 (TCP) の測定を開始します...
+MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Recv   Send    Send                          
+Socket Socket  Message  Elapsed              
+Size   Size    Size     Time     Throughput  
+bytes  bytes   bytes    secs.    10^6bits/sec  
+
+131072  16384  32710    10.01    2927.95   
+パケットサイズ 32710 (TCP) の測定が終了しました。ログを tcp_32768.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 65477 (TCP) の測定を開始します...
+MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Recv   Send    Send                          
+Socket Socket  Message  Elapsed              
+Size   Size    Size     Time     Throughput  
+bytes  bytes   bytes    secs.    10^6bits/sec  
+
+131072  16384  65477    10.01    3093.84   
+パケットサイズ 65477 (TCP) の測定が終了しました。ログを tcp_65535.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 18 (UDP) の測定を開始します...
+MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Socket  Message  Elapsed      Messages                
+Size    Size     Time         Okay Errors   Throughput
+bytes   bytes    secs            #      #   10^6bits/sec
+
+212992      18   10.00     7303603      0     105.17
+212992           10.00     6111435             88.00
+
+パケットサイズ 18 (UDP) の測定が終了しました。ログを udp_64.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 82 (UDP) の測定を開始します...
+MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Socket  Message  Elapsed      Messages                
+Size    Size     Time         Okay Errors   Throughput
+bytes   bytes    secs            #      #   10^6bits/sec
+
+212992      82   10.00     6954295      0     456.20
+212992           10.00     6153768            403.69
+
+パケットサイズ 82 (UDP) の測定が終了しました。ログを udp_128.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 210 (UDP) の測定を開始します...
+MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Socket  Message  Elapsed      Messages                
+Size    Size     Time         Okay Errors   Throughput
+bytes   bytes    secs            #      #   10^6bits/sec
+
+212992     210   10.00     7157979      0    1202.53
+212992           10.00     5320024            893.76
+
+パケットサイズ 210 (UDP) の測定が終了しました。ログを udp_256.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 466 (UDP) の測定を開始します...
+MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Socket  Message  Elapsed      Messages                
+Size    Size     Time         Okay Errors   Throughput
+bytes   bytes    secs            #      #   10^6bits/sec
+
+212992     466   10.00     6680815      0    2490.60
+212992           10.00     5383910           2007.12
+
+パケットサイズ 466 (UDP) の測定が終了しました。ログを udp_512.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 978 (UDP) の測定を開始します...
+MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Socket  Message  Elapsed      Messages                
+Size    Size     Time         Okay Errors   Throughput
+bytes   bytes    secs            #      #   10^6bits/sec
+
+212992     978   10.00     6386679      0    4996.89
+212992           10.00     5541488           4335.62
+
+パケットサイズ 978 (UDP) の測定が終了しました。ログを udp_1024.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 1234 (UDP) の測定を開始します...
+MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Socket  Message  Elapsed      Messages                
+Size    Size     Time         Okay Errors   Throughput
+bytes   bytes    secs            #      #   10^6bits/sec
+
+212992    1234   10.00     6249963      0    6169.95
+212992           10.00     5490202           5419.92
+
+パケットサイズ 1234 (UDP) の測定が終了しました。ログを udp_1280.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 1472 (UDP) の測定を開始します...
+MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Socket  Message  Elapsed      Messages                
+Size    Size     Time         Okay Errors   Throughput
+bytes   bytes    secs            #      #   10^6bits/sec
+
+212992    1472   10.00     6184414      0    7282.75
+212992           10.00     5585973           6578.03
+
+パケットサイズ 1472 (UDP) の測定が終了しました。ログを udp_1518.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 2002 (UDP) の測定を開始します...
+MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Socket  Message  Elapsed      Messages                
+Size    Size     Time         Okay Errors   Throughput
+bytes   bytes    secs            #      #   10^6bits/sec
+
+212992    2002   10.00     4430321      0    7095.59
+212992           10.00       38033             60.91
+
+パケットサイズ 2002 (UDP) の測定が終了しました。ログを udp_2048.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 4050 (UDP) の測定を開始します...
+MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Socket  Message  Elapsed      Messages                
+Size    Size     Time         Okay Errors   Throughput
+bytes   bytes    secs            #      #   10^6bits/sec
+
+212992    4050   10.00     2938906      0    9522.04
+212992           10.00           0              0.00
+
+パケットサイズ 4050 (UDP) の測定が終了しました。ログを udp_4096.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 8146 (UDP) の測定を開始します...
+MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Socket  Message  Elapsed      Messages                
+Size    Size     Time         Okay Errors   Throughput
+bytes   bytes    secs            #      #   10^6bits/sec
+
+212992    8146   10.00     1466906      0    9559.52
+212992           10.00         795              5.18
+
+パケットサイズ 8146 (UDP) の測定が終了しました。ログを udp_8192.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 16338 (UDP) の測定を開始します...
+MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Socket  Message  Elapsed      Messages                
+Size    Size     Time         Okay Errors   Throughput
+bytes   bytes    secs            #      #   10^6bits/sec
+
+212992   16338   10.00      732490      0    9573.91
+212992           10.00           0              0.00
+
+パケットサイズ 16338 (UDP) の測定が終了しました。ログを udp_16384.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 32722 (UDP) の測定を開始します...
+MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Socket  Message  Elapsed      Messages                
+Size    Size     Time         Okay Errors   Throughput
+bytes   bytes    secs            #      #   10^6bits/sec
+
+212992   32722   10.00      366497      0    9593.98
+212992           10.00          60              1.57
+
+パケットサイズ 32722 (UDP) の測定が終了しました。ログを udp_32768.txt に保存しました。
+次の測定まで5秒間待機します...
+パケットサイズ 65489 (UDP) の測定を開始します...
+MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to olive-vm1.ksl.ci.kyutech.ac.jp () port 0 AF_INET : demo
+Socket  Message  Elapsed      Messages                
+Size    Size     Time         Okay Errors   Throughput
+bytes   bytes    secs            #      #   10^6bits/sec
+
+212992   65489   10.00      183430      0    9610.09
+212992           10.00           0              0.00
+
+パケットサイズ 65489 (UDP) の測定が終了しました。ログを udp_65535.txt に保存しました。
+次の測定まで5秒間待機します...
+全ての測定が完了しました。
+
