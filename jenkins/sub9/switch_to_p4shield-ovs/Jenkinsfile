@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Shutdown VMs') {
+            steps {
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp <<EOF
+                if virsh list --state-running | grep -q user; then
+                  virsh shutdown user
+                  while virsh list --state-running | grep -q user; do
+                    sleep 1
+                  done
+                fi
+
+                if virsh list --state-running | grep -q p4; then
+                  virsh shutdown p4
+                  while virsh list --state-running | grep -q p4; do
+                    sleep 1
+                  done
+                fi
+EOF
+                '''
+            }
+        }
+        stage('[sub9] Stop OVS') {
+            steps {
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-ctl stop
+EOF
+                '
+                '''
+            }
+        }
+        stage('Build & Start') {
+            steps {
+                build job: 'P4 Shield - sub9/build'
+            }
+        }
+    }
+}
+
