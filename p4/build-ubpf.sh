@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ALIAS_COMMAND="alias build-ovs=\"sudo bash -c 'make clean ; ./boot.sh ; ./configure ; make -j\\\$(nproc) && make install'\""
+ALIAS_COMMAND="alias build-ubpf=\"sudo make --build build -v --target install'\""
 
 echo "$ALIAS_COMMAND" >> /root/.bashrc
 echo "$ALIAS_COMMAND" >> /home/iwai/.bashrc
