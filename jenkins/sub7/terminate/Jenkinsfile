@@ -40,9 +40,8 @@ EOF
                 sh '''
                 ssh sub7.ksl.ci.kyutech.ac.jp '
                 sudo su<< EOF
-                kill $(pgrep ivshmem-server)
-                rm /dev/shm/ivshmem 2> /dev/null
-                rm /tmp/ivshmem_socket 2> /dev/null
+                cd p4-ubpf_scripts/ovs
+                ./ivshmem-stop.sh
 EOF
                 '
                 '''

@@ -50,81 +50,98 @@ EOF
                 '''
             }
         }
-        stage('[p4] Update ubpf repository') {
-            steps{
-                sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
-                cd ubpf
-                git pull
-InnerEOF
-                '
-EOF
-                '''
-            }
-        }
-        stage('[p4] Build P4 & uBPF Runtime') {
+        stage('[p4] Prepare ivshmem'){
             steps{
                 sh '''
                 ssh sub9.ksl.ci.kyutech.ac.jp << EOF
                 ssh -o StrictHostKeyChecking=no p4.local '
                 sudo su << InnerEOF
-                cd ubpf
-                cmake --build build -v --target install
+                cd p4-ubpf_scripts/p4
+                ./shm.sh || true
 InnerEOF
                 '
 EOF
                 '''
             }
         }
-        stage('[sub9] Update OVS repository') {
-            steps{
-                sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
-                cd ovs
-                git pull
-EOF
-                '''
+        stage('[p4] Run uBPF Runtime') {
+            steps {
+                input message: 'p4.localにてp4uを実行して，Enterを押してください．'
             }
         }
-        stage('[sub9] Build OVS') {
+        stage('[sub9] Run OVS') {
             steps {
                 sh '''
                 ssh sub9.ksl.ci.kyutech.ac.jp '
                 sudo su <<EOF
-                cd ovs
-                make clean
-                ./boot.sh
-                ./configure
-                make -j$(nproc) && make install
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-ctl stop || true
+                sleep 3
+                ovs-ctl start
+EOF
+                '
+                '''
+                sleep time: 5, unit: 'SECONDS'
+            }
+        }
+        stage('[sub9] Turn off kernel data_path') {
+            steps {
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                iptables -A INPUT -i eno12409np1 -j DROP
+                iptables -A FORWARD -i eno12409np1 -j DROP
 EOF
                 '
                 '''
             }
         }
-        stage('[sub9] Shutdown P4 VM') {
+        stage('[sub9] Turn on Userspace TCP Segmentation Offload') {
+            steps {
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-vsctl set Open_vSwitch . other_config:userspace-tso-enable=true
+EOF
+                '
+                '''
+            }
+        }
+        stage('[sub9] Start User VM') {
             steps {
                 sh '''
                 ssh sub9.ksl.ci.kyutech.ac.jp <<EOF
-                virsh shutdown p4
+                if virsh domstate user | grep -q running; then
+                    echo "User VM is already running."
+                else
+                    echo "Starting User VM..."
+                    virsh start user
+                fi
 EOF
                 '''
                 sleep time: 30, unit: 'SECONDS'
             }
         }
-        stage('[sub9] Stop ivshmem-server'){
-            steps {
+        stage('[User] Prepare ivshmem'){
+            steps{
                 sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp <<EOF
-                cd p4-ubpf_scripts/ovs
-                ./ivshmem-stop.sh
+                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no sub9-vm1.ksl.ci.kyutech.ac.jp '
+                sudo su << InnerEOF
+                cd p4-ubpf_scripts
+                git pull
+                cd user
+                ./shm.sh || true
+InnerEOF
+                '
 EOF
                 '''
             }
         }
-        stage('Start P4 Shield') {
+        stage('Check status') {
             steps {
-                build job: 'P4 Shield - sub9/start'
+                build job: 'P4 Shield - sub9/check network'
             }
         }
     }

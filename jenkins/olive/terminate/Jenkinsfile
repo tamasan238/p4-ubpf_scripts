@@ -38,13 +38,10 @@ EOF
         stage('[olive] Stop ivshmem-server'){
             steps {
                 sh '''
-                ssh olive.ksl.ci.kyutech.ac.jp '
-                sudo su<< EOF
-                kill $(pgrep ivshmem-server)
-                rm /dev/shm/ivshmem 2> /dev/null
-                rm /tmp/ivshmem_socket 2> /dev/null
+                ssh olive.ksl.ci.kyutech.ac.jp <<EOF
+                cd p4-ubpf_scripts/ovs
+                ./ivshmem-stop.sh
 EOF
-                '
                 '''
             }
         }
