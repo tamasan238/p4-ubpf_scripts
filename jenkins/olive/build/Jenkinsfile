@@ -12,11 +12,6 @@ EOF
                 '''
             }
         }
-        stage('[olive] Start ivshmem-server') {
-            steps {
-                input message: 'p4-ubpf_scripts/ovs/ivshmem-start.shを実行して，Enterを押してください．'
-            }
-        }
         stage('[olive] Start P4 VM') {
             steps {
                 sh '''
@@ -105,16 +100,6 @@ EOF
 EOF
                 '''
                 sleep time: 30, unit: 'SECONDS'
-            }
-        }
-        stage('[olive] Stop ivshmem-server'){
-            steps {
-                sh '''
-                ssh olive.ksl.ci.kyutech.ac.jp <<EOF
-                cd p4-ubpf_scripts/ovs
-                ./ivshmem-stop.sh
-EOF
-                '''
             }
         }
         stage('Start P4 Shield') {
