@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ALIAS_COMMAND="alias build-ubpf=\"sudo make --build build -v --target install'\""
+ALIAS_COMMAND="alias build-ubpf=\"sudo make --build build -v --target install\""
 
 echo "$ALIAS_COMMAND" >> /root/.bashrc
 echo "$ALIAS_COMMAND" >> /home/iwai/.bashrc

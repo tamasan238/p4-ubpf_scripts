@@ -12,14 +12,9 @@ EOF
                 '''
             }
         }
-        stage('[sub9] Start ivshmem-server'){
+        stage('[sub9] Start ivshmem-server') {
             steps {
-                sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp <<EOF
-                cd p4-ubpf_scripts/ovs
-                ./ivshmem-start.sh
-EOF
-                '''
+                input message: 'p4-ubpf_scripts/ovs/ivshmem-start.shを実行して，Enterを押してください．'
             }
         }
         stage('[sub9] Start P4 VM') {
