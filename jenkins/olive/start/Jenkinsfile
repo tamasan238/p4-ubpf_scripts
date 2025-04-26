@@ -7,7 +7,7 @@ pipeline {
                 sh '''
                 ssh olive.ksl.ci.kyutech.ac.jp << EOF
                 cd p4-ubpf_scripts
-                git pull
+                sudo git pull
 EOF
                 '''
             }
@@ -38,7 +38,7 @@ EOF
                 ssh olive.ksl.ci.kyutech.ac.jp << EOF
                 ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
                 cd p4-ubpf_scripts
-                git pull
+                sudo git pull
 InnerEOF
                 '
 EOF
@@ -125,7 +125,7 @@ EOF
                 ssh -o StrictHostKeyChecking=no olive-vm1.ksl.ci.kyutech.ac.jp '
                 sudo su << InnerEOF
                 cd p4-ubpf_scripts
-                git pull
+                sudo git pull
                 cd user
                 ./shm.sh || true
 InnerEOF
