@@ -21,7 +21,7 @@ case "$1" in
       -include "$P4FILENAME.c"
     ;;
   run-ubpf)
-    "$UBPFBIN/ubpf_test" "$P4FILENAME.o"
+    "$UBPFBIN/ubpf_test" "$P4FILENAME.o" &
     ;;
   p4u)
     "$0" p4-c && "$0" c-ubpf && "$0" run-ubpf
