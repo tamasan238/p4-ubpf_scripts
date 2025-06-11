@@ -9,7 +9,7 @@ for FILE in /dev/shm/ivshmem /tmp/ivshmem_socket; do
     sudo rm "$FILE" 2> /dev/null || true
 done
 
-sudo ~iwai/qemu/build/contrib/ivshmem-server/ivshmem-server -l 1024M &
+sudo nohup ~iwai/qemu/build/contrib/ivshmem-server/ivshmem-server -l 1024M &
 
 sleep 1
 
