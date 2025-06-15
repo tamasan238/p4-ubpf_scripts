@@ -30,6 +30,17 @@ EOF
                 else
                     echo "Starting P4 VM..."
                     virsh start p4
+                    for i in {1..30}; do
+                        if virsh domstate p4 | grep -q running; then
+                            echo "P4 VM is now running."
+                            break
+                        fi
+                        sleep 1
+                    done
+                    if ! virsh domstate p4 | grep -q running; then
+                        echo "Error: P4 VM did not start within expected time."
+                        exit 1
+                    fi
                 fi
 EOF
                 '''
@@ -122,10 +133,20 @@ EOF
                 else
                     echo "Starting User VM..."
                     virsh start user
+                    for i in {1..30}; do
+                        if virsh domstate user | grep -q running; then
+                            echo "User VM is now running."
+                            break
+                        fi
+                        sleep 1
+                    done
+                    if ! virsh domstate user | grep -q running; then
+                        echo "Error: User VM did not start within expected time."
+                        exit 1
+                    fi
                 fi
 EOF
                 '''
-                sleep time: 30, unit: 'SECONDS'
             }
         }
         stage('[User] Prepare ivshmem'){
