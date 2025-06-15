@@ -65,12 +65,10 @@ EOF
         }
         stage('[p4] Run uBPF Runtime'){
             steps{
-                JENKINS_NODE_COOKIE=dontKillMe sh '''
+                sh '''
                 ssh sub7.ksl.ci.kyutech.ac.jp << EOF
                 ssh -o StrictHostKeyChecking=no p4.local '
-                sudo su << InnerEOF
-                nohup p4u &
-InnerEOF
+                sudo ./p4-ubpf_scripts/p4/p4-ctl.sh p4u
                 '
 EOF
                 '''
