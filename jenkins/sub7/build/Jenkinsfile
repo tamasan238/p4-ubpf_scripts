@@ -21,10 +21,21 @@ EOF
                 else
                     echo "Starting P4 VM..."
                     virsh start p4
+                    for i in {1..30}; do
+                        if virsh domstate p4 | grep -q running; then
+                            echo "P4 VM is now running."
+                            sleep 5
+                            break
+                        fi
+                        sleep 1
+                    done
+                    if ! virsh domstate p4 | grep -q running; then
+                        echo "Error: P4 VM did not start within expected time."
+                        exit 1
+                    fi
                 fi
 EOF
                 '''
-                sleep time: 30, unit: 'SECONDS'
             }
         }
         stage('[p4] Update scripts repository') {

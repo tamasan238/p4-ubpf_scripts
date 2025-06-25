@@ -45,7 +45,6 @@ EOF
                 fi
 EOF
                 '''
-                sleep time: 30, unit: 'SECONDS'
             }
         }
         stage('[p4] Update scripts repository') {
