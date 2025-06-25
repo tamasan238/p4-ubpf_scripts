@@ -33,6 +33,7 @@ EOF
                     for i in {1..30}; do
                         if virsh domstate p4 | grep -q running; then
                             echo "P4 VM is now running."
+                            sleep 5
                             break
                         fi
                         sleep 1
@@ -136,6 +137,7 @@ EOF
                     for i in {1..30}; do
                         if virsh domstate user | grep -q running; then
                             echo "User VM is now running."
+                            sleep 5
                             break
                         fi
                         sleep 1
