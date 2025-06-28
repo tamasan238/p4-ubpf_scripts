@@ -128,20 +128,20 @@ EOF
             steps {
                 sh '''
                 ssh sub9.ksl.ci.kyutech.ac.jp <<EOF
-                if virsh domstate user | grep -q running; then
+                if virsh domstate user_dpdk | grep -q running; then
                     echo "User VM is already running."
                 else
                     echo "Starting User VM..."
-                    virsh start user
+                    virsh start user_dpdk
                     for i in {1..30}; do
-                        if virsh domstate user | grep -q running; then
+                        if virsh domstate user_dpdk | grep -q running; then
                             echo "User VM is now running."
                             sleep 5
                             break
                         fi
                         sleep 1
                     done
-                    if ! virsh domstate user | grep -q running; then
+                    if ! virsh domstate user_dpdk | grep -q running; then
                         echo "Error: User VM did not start within expected time."
                         exit 1
                     fi
