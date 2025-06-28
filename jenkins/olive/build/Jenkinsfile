@@ -96,7 +96,7 @@ EOF
                 cd ovs
                 make clean
                 ./boot.sh
-                ./configure
+                ./configure --with-dpdk=static
                 make -j$(nproc) && make install
 EOF
                 '
