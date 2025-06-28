@@ -136,7 +136,7 @@ EOF
                     for i in {1..30}; do
                         if virsh domstate user_dpdk | grep -q running; then
                             echo "User VM is now running."
-                            sleep 10
+                            sleep 30
                             break
                         fi
                         sleep 1
