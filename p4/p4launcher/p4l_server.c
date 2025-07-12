@@ -38,7 +38,7 @@ typedef struct
 #define PACKETS_AREA (META_AREA + 2 * 1024 * 1024) // Start at 4MB unused in this program
 
 #define SHM_SESSION_TABLE 0
-// #define SHM_@@@ (SHM_SESSION_TABLE + sizeof(Connection) * MAX_CONNECTIONS) // next params
+#define SHM_TABLE_IS_LOCKED (SHM_SESSION_TABLE + sizeof(Connection) * MAX_CONNECTIONS) // next params
 
 #define MAX_CONNECTIONS 512
 #define INIT_CLIENTS 6
@@ -71,15 +71,13 @@ void *base_ptr;
 
 // for shm
 Connection *session;
+bool *is_locked = false;
 
 // fork
 int server_sock;
-int runtimes = 0;
-int available_runtimes = 0;
+int runtimes = 0; // can change in adjust_children()
+int available_runtimes = 0; // can change in link_add(), link_del()
 P4runtime p4runtime[MAX_CONNECTIONS];
-
-// lock
-bool is_locked = false;
 
 int main()
 {
@@ -300,6 +298,7 @@ void adjust_children(int target)
     {
         // add runtimes
         start_children(target);
+        runtimes++;
     }
     else if (target < runtimes)
     {
