@@ -71,7 +71,7 @@ void *base_ptr;
 
 // for shm
 Connection *session;
-bool *is_locked = false;
+bool *is_locked;
 
 // fork
 int server_sock;
@@ -195,12 +195,14 @@ void shm_start(void)
 void shm_init(void)
 {
     session = (Connection *)(shm_ptr + SHM_SESSION_TABLE);
-
     for (int i = 0; i < MAX_CONNECTIONS; i++)
     {
         session[i].ovs_thread_id = -1;
         session[i].p4runtime_id = -1;
     }
+
+    is_locked = (bool *)(shm_ptr + SHM_TABLE_IS_LOCKED);
+    *is_locked = false;
 }
 
 void shm_end(void)
