@@ -128,10 +128,14 @@ void check_ovs(void)
     {
         if (session[i].ovs_thread_id != -1 && session[i].p4runtime_id == -1)
         {
+            syslog(LOG_WARNING, "Found a new session | OVS ID: %lld, i: %d",
+                session[i].ovs_thread_id, i);
             link_add(i);
         }
         if (session[i].ovs_thread_id == -1 && session[i].p4runtime_id != -1)
         {
+            syslog(LOG_WARNING, "Found a lost session | P4 ID: %d, i: %d",
+                session[i].p4runtime_id, i);
             link_del(i);
         }
     }
@@ -153,6 +157,8 @@ void link_add(int i)
             available_runtimes--;
             // add session
             session[i].p4runtime_id = p4runtime[j].p4runtime_id;
+            syslog(LOG_WARNING, "Session created | OVS ID: %lld, P4 ID: %d, i: %d",
+                session[i].ovs_thread_id, session[i].p4runtime_id, i);
             break;
         }
     }
@@ -167,6 +173,8 @@ void link_del(int i)
         {
             p4runtime[j].in_use = false;
             available_runtimes++;
+            syslog(LOG_WARNING, "Session closed | OVS ID: %lld, P4 ID: %d, i: %d",
+                session[i].ovs_thread_id, session[i].p4runtime_id, i);
             break;
         }
     }
@@ -181,7 +189,7 @@ void shm_start(void)
     fd = open(SHM_NAME, O_RDWR);
     if (fd < 0)
     {
-        syslog(LOG_ERR, "shm cannot open");
+        syslog(LOG_ERR, "shm cannot open. please try with sudo");
         exit(EXIT_FAILURE);
     }
     syslog(LOG_INFO, "fd: %d，SHM_SIZE: %d", fd, SHM_SIZE);
@@ -189,7 +197,7 @@ void shm_start(void)
     base_ptr = mmap(NULL, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 4096);
     if (base_ptr == MAP_FAILED)
     {
-        syslog(LOG_ERR, "shm cannot mmap");
+        syslog(LOG_ERR, "shm cannot mmap. maybe not prepared ivshmem-server or ivshmem-uio drivers");
         exit(EXIT_FAILURE);
     }
     syslog(LOG_INFO, "mapped to %p", base_ptr);
