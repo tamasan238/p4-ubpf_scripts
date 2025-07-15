@@ -19,7 +19,7 @@
 
 typedef struct
 {
-    int ovs_thread_id;
+    long long ovs_thread_id;
     int p4runtime_id;
 } Connection;
 
@@ -38,13 +38,18 @@ typedef struct
 #define PACKETS_AREA (META_AREA + 2 * 1024 * 1024) // Start at 4MB unused in this program
 
 #define SHM_SESSION_TABLE 0
-#define SHM_TABLE_IS_LOCKED (SHM_SESSION_TABLE + sizeof(Connection) * MAX_CONNECTIONS) // next params
+#define SHM_TABLE_IS_LOCKED (SHM_SESSION_TABLE + sizeof(Connection) * MAX_CONNECTIONS)
 
 #define MAX_CONNECTIONS 512
 #define INIT_CLIENTS 6
-#define P4CTL "/home/iwai/p4-ubpf_scripts/p4/p4-ctl.sh"
-#define P4RUNCOMMAND "/home/iwai/p4-ubpf_scripts/p4/p4-ctl.sh run-ubpf"
-#define TARGET_PROCESS "p4l_server ubpf_test"
+// #define P4CTL "/home/iwai/p4-ubpf_scripts/p4/p4-ctl.sh"
+// #define P4RUNCOMMAND "/home/iwai/p4-ubpf_scripts/p4/p4-ctl.sh run-ubpf"
+// #define TARGET_PROCESS "p4l_server ubpf_test"
+
+/* for debug */
+#define P4CTL "/home/iwai/p4-ubpf_scripts/p4/p4launcher/demo"
+#define P4RUNCOMMAND "/home/iwai/p4-ubpf_scripts/p4/p4launcher/demo"
+#define TARGET_PROCESS "demo"
 
 void start_children(int num);
 void stop_all_children(void);
