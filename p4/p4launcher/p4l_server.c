@@ -109,6 +109,10 @@ int main()
         int client_fd = accept(server_sock, NULL, NULL);
         if (client_fd < 0)
         {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                usleep(100000); // 0.1秒
+                continue;
+            }
             syslog(LOG_ERR, "accept failure");
             continue;
         }
@@ -388,6 +392,9 @@ void setup_server_socket()
         close(server_sock);
         exit(EXIT_FAILURE);
     }
+
+    int flags = fcntl(server_sock, F_GETFL, 0);
+    fcntl(server_sock, F_SETFL, flags | O_NONBLOCK);
 }
 
 void handle_client(int client_fd)
