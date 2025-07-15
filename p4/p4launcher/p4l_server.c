@@ -110,7 +110,7 @@ int main()
         if (client_fd < 0)
         {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                usleep(100000); // 0.1秒
+                usleep(5000000); // 5秒
                 continue;
             }
             syslog(LOG_ERR, "accept failure");
