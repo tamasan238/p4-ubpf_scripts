@@ -110,7 +110,7 @@ int main()
         if (client_fd < 0)
         {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                usleep(5000000); // 5秒
+                // usleep(5000000); // 5秒
                 continue;
             }
             syslog(LOG_ERR, "accept failure");
@@ -129,10 +129,10 @@ void check_ovs(void)
 {
     for (int i = 0; i < MAX_CONNECTIONS; i++)
     {
-        if(i<10){
-            syslog(LOG_WARNING, "i: %d, OVS ID: %lld, P4 ID: %d",
-                    i, session[i].ovs_thread_id, session[i].p4runtime_id);
-        }
+        // if(i<10){
+        //     syslog(LOG_WARNING, "i: %d, OVS ID: %lld, P4 ID: %d",
+        //             i, session[i].ovs_thread_id, session[i].p4runtime_id);
+        // }
         if (session[i].ovs_thread_id != -1 && session[i].p4runtime_id == -1)
         {
             syslog(LOG_WARNING, "Found a new session | OVS ID: %lld, i: %d",
