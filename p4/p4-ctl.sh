@@ -21,10 +21,10 @@ case "$1" in
       -include "$P4FILENAME.c"
     ;;
   run-ubpf)
-    if pgrep -f "ubpf_test" > /dev/null; then
-        sudo kill $(pgrep ubpf_test) 2> /dev/null
-        echo "ubpf_test restarting..."
-    fi
+    # if pgrep -f "ubpf_test" > /dev/null; then
+    #     sudo kill $(pgrep ubpf_test) 2> /dev/null
+    #     echo "ubpf_test restarting..."
+    # fi
     "$UBPFBIN/ubpf_test" "$P4FILENAME.o" </dev/null >/dev/null 2>&1 &
     ;;
   p4u)
