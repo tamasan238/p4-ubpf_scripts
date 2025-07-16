@@ -41,8 +41,8 @@ typedef struct
 
 #define MAX_CONNECTIONS 512
 #define INIT_CLIENTS 6
-#define P4CTL "/home/iwai/p4-ubpf_scripts/p4/p4-ctl.sh"
-#define P4RUNCOMMAND "/home/iwai/p4-ubpf_scripts/p4/p4-ctl.sh run-ubpf"
+#define P4CTL "/home/iwai/ubpf/build/bin/ubpf_test"
+#define P4RUNCOMMAND "/home/iwai/ubpf/build/bin/ubpf_test /home/iwai/p4c/testdata/p4_16_samples/ubpf.o"
 #define TARGET_PROCESS "ubpf_test"
 
 /* for debug */
