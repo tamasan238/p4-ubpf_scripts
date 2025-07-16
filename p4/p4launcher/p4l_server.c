@@ -41,8 +41,11 @@ typedef struct
 
 #define MAX_CONNECTIONS 512
 #define INIT_CLIENTS 6
-#define P4CTL "/home/iwai/ubpf/build/bin/ubpf_test /home/iwai/p4c/testdata/p4_16_samples/ubpf.o"
-#define P4RUNCOMMAND "/home/iwai/ubpf/build/bin/ubpf_test /home/iwai/p4c/testdata/p4_16_samples/ubpf.o"
+
+UBPF_RUNTIME_PATH, UBPF_RUNTIME, UBPF_BYTECODE
+#define UBPF_RUNTIME_PATH "/home/iwai/ubpf/build/bin/ubpf_test"
+#define UBPF_RUNTIME "ubpf_test"
+#define UBPF_BYTECODE "/home/iwai/p4c/testdata/p4_16_samples/ubpf.o"
 #define TARGET_PROCESS "ubpf_test"
 
 /* for debug */
@@ -250,7 +253,7 @@ void start_children(int num)
         {
             // 子プロセス
 
-            execl(P4CTL, P4RUNCOMMAND, NULL);
+            execl(UBPF_RUNTIME_PATH, UBPF_RUNTIME, UBPF_BYTECODE, NULL);
             // execl failure時
             syslog(LOG_ERR, "execl failure");
             _exit(1);
