@@ -41,14 +41,14 @@ typedef struct
 
 #define MAX_CONNECTIONS 512
 #define INIT_CLIENTS 6
-// #define P4CTL "/home/iwai/p4-ubpf_scripts/p4/p4-ctl.sh"
-// #define P4RUNCOMMAND "/home/iwai/p4-ubpf_scripts/p4/p4-ctl.sh run-ubpf"
-// #define TARGET_PROCESS "p4l_server ubpf_test"
+#define P4CTL "/home/iwai/p4-ubpf_scripts/p4/p4-ctl.sh"
+#define P4RUNCOMMAND "/home/iwai/p4-ubpf_scripts/p4/p4-ctl.sh run-ubpf"
+#define TARGET_PROCESS "p4l_server ubpf_test"
 
 /* for debug */
-#define P4CTL "/home/iwai/p4-ubpf_scripts/p4/p4launcher/demo"
-#define P4RUNCOMMAND "/home/iwai/p4-ubpf_scripts/p4/p4launcher/demo"
-#define TARGET_PROCESS "demo"
+// #define P4CTL "/home/iwai/p4-ubpf_scripts/p4/p4launcher/demo"
+// #define P4RUNCOMMAND "/home/iwai/p4-ubpf_scripts/p4/p4launcher/demo"
+// #define TARGET_PROCESS "demo"
 
 void start_children(int num);
 void stop_all_children(void);
