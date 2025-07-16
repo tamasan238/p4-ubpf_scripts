@@ -43,7 +43,7 @@ typedef struct
 #define INIT_CLIENTS 6
 #define P4CTL "/home/iwai/p4-ubpf_scripts/p4/p4-ctl.sh"
 #define P4RUNCOMMAND "/home/iwai/p4-ubpf_scripts/p4/p4-ctl.sh run-ubpf"
-#define TARGET_PROCESS "p4l_server ubpf_test"
+#define TARGET_PROCESS "ubpf_test"
 
 /* for debug */
 // #define P4CTL "/home/iwai/p4-ubpf_scripts/p4/p4launcher/demo"

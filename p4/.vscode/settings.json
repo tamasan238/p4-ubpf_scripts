@@ -1,0 +1,8 @@
+{
+    "cfs.configureWorkspace": "Never",
+    "files.associations": {
+        "*.dbclient-js": "javascript",
+        "wait.h": "c",
+        "signal.h": "c"
+    }
+}
