@@ -120,6 +120,7 @@ int main()
             continue;
         }
         handle_client(client_fd);
+        usleep(WAIT_TIME);
     }
 
     shm_end();
