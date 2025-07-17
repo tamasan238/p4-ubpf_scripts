@@ -39,7 +39,8 @@ typedef struct
 #define SHM_SESSION_TABLE 0
 #define SHM_TABLE_IS_LOCKED (SHM_SESSION_TABLE + sizeof(Connection) * MAX_CONNECTIONS)
 
-#define MAX_CONNECTIONS 512
+// #define MAX_CONNECTIONS 512
+#define MAX_CONNECTIONS 8
 #define INIT_CLIENTS 6
 
 #define UBPF_RUNTIME_PATH "/home/iwai/ubpf/build/bin/ubpf_test"
