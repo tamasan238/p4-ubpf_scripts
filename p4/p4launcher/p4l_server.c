@@ -108,6 +108,7 @@ int main()
         //     adjust_children();      // todo: Must change here (add 余裕)
 
         check_ovs();
+        usleep(WAIT_TIME);
 
         int client_fd = accept(server_sock, NULL, NULL);
         if (client_fd < 0)
@@ -120,7 +121,6 @@ int main()
             continue;
         }
         handle_client(client_fd);
-        usleep(WAIT_TIME);
     }
 
     shm_end();
