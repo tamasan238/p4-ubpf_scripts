@@ -135,13 +135,13 @@ void check_ovs(void)
         //     syslog(LOG_WARNING, "i: %d, OVS ID: %lld, P4 ID: %d",
         //             i, session[i].ovs_thread_id, session[i].p4runtime_id);
         // }
-        if (session[i].ovs_thread_id != -1 && session[i].p4runtime_id == -1)
+        if (session[i].ovs_thread_id > 0 && session[i].p4runtime_id < 0)
         {
             syslog(LOG_WARNING, "Found a new session | OVS ID: %lld, i: %d",
                 session[i].ovs_thread_id, i);
             link_add(i);
         }
-        if (session[i].ovs_thread_id == -1 && session[i].p4runtime_id != -1)
+        if (session[i].ovs_thread_id < 0 && session[i].p4runtime_id > 0)
         {
             syslog(LOG_WARNING, "Found a lost session | P4 ID: %d, i: %d",
                 session[i].p4runtime_id, i);
