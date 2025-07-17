@@ -41,7 +41,7 @@ typedef struct
 
 // #define MAX_CONNECTIONS 512
 #define MAX_CONNECTIONS 8
-#define INIT_CLIENTS 6
+#define INIT_CLIENTS 1
 
 #define UBPF_RUNTIME_PATH "/home/iwai/ubpf/build/bin/ubpf_test"
 #define UBPF_RUNTIME "ubpf_test"
