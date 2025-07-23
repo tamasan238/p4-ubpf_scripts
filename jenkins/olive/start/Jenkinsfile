@@ -79,7 +79,7 @@ EOF
                 sh '''
                 ssh olive.ksl.ci.kyutech.ac.jp << EOF
                 ssh -o StrictHostKeyChecking=no p4.local '
-                sudo ./p4-ubpf_scripts/p4/p4-ctl.sh p4u
+                sudo ./p4-ubpf_scripts/p4/p4launcher/p4l_server
                 '
 EOF
                 '''
