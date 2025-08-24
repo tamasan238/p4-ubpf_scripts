@@ -20,6 +20,6 @@ pin_to_cpu() {
 
 # 仮
 pin_to_cpu "0,1,2,3" "ovs-vswitchd"
-pin_to_cpu "4,5,6,7" "guest=p4"
+pin_to_cpu "4,5,6,7,8,9" "guest=p4"
 # pin_to_cpu "4,5" "ivshmem-server" 効かない．
-pin_to_cpu "8,9,10,11" "guest=user_dpdk"
+pin_to_cpu "10,11,12,13" "guest=user_dpdk"
