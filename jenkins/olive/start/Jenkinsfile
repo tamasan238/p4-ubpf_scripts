@@ -53,7 +53,7 @@ EOF
                 ssh olive.ksl.ci.kyutech.ac.jp << EOF
                 ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
                 cd p4-ubpf_scripts
-                git pull
+                sudo git pull
 InnerEOF
                 '
 EOF
