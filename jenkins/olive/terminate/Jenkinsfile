@@ -7,7 +7,7 @@ pipeline {
                 sh '''
                 ssh olive.ksl.ci.kyutech.ac.jp <<EOF
                 if virsh list --state-running | grep -q user; then
-                  virsh shutdown user
+                  virsh shutdown user_dpdk
                   while virsh list --state-running | grep -q user; do
                     sleep 1
                   done
