@@ -170,7 +170,7 @@ EOF
             steps {
                 sh '''
                 ssh olive.ksl.ci.kyutech.ac.jp << EOF
-                ./p4-ubpf_scripts/kvm/affinity.sh
+                sudo ./p4-ubpf_scripts/kvm/affinity.sh
 EOF
                 '''
             }
