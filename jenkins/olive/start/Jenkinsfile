@@ -166,6 +166,15 @@ EOF
                 '''
             }
         }
+        stage('[olive] Set CPU Affinity') {
+            steps {
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp << EOF
+                ./p4-ubpf_scripts/kvm/affinity.sh
+EOF
+                '''
+            }
+        }
         stage('Check status') {
             steps {
                 build job: 'P4 Shield - olive/check network'
