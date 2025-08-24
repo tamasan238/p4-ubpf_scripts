@@ -1,6 +1,12 @@
 #!/bin/bash
 
-for PID in $(pgrep ubpf); do
-    sudo chrt -f -p 99 $PID
-    chrt -p $PID
+processes=("ubpf" "p4")
+
+for proc in "${processes[@]}"; do
+    for PID in $(pgrep "$proc"); do
+        for TID in $(ps -L -p $PID -o tid=); do
+            sudo chrt -f -p 99 $TID
+            chrt -p $TID
+        done
+    done
 done
