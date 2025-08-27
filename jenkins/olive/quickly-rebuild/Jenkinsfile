@@ -104,11 +104,10 @@ EOF
             steps{
                 sleep time: 5, unit: 'SECONDS'
                 sh '''
-                ssh olive.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
+                ssh olive.ksl.ci.kyutech.ac.jp <<'EOF'
+                ssh -o StrictHostKeyChecking=no p4.local <<'InnerEOF'
                 sudo ./p4-ubpf_scripts/p4/priority.sh
 InnerEOF
-                '
 EOF
                 '''
             }
