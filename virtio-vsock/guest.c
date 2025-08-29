@@ -24,8 +24,11 @@ int main() {
         exit(1);
     }
 
-    const char *msg = "Hello from guest";
-    write(sock, msg, strlen(msg));
+    write(sock, "Hello host", 10);  // 送信
+    char buf[128];
+    int n = read(sock, buf, sizeof(buf)); // 受信
+    buf[n] = '\0';
+    printf("Received from host: %s\n", buf);
 
     close(sock);
     return 0;
