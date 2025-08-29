@@ -1,14 +1,14 @@
-// host.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/mman.h>
 #include <sys/socket.h>
 #include <linux/vm_sockets.h>
 
-#define PORT 1234
+#define SHM_SIZE 1024
+#define PORT     1234
 
 int main() {
     // vsockサーバを立てる
@@ -17,8 +17,8 @@ int main() {
 
     struct sockaddr_vm addr = {
         .svm_family = AF_VSOCK,
-        .svm_cid = VMADDR_CID_ANY,
-        .svm_port = PORT,
+        .svm_cid    = VMADDR_CID_ANY,
+        .svm_port   = PORT,
     };
 
     if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
@@ -34,15 +34,16 @@ int main() {
     recv(client, buf, sizeof(buf), 0);
     printf("Notification received: %s\n", buf);
 
-    // 共有メモリを開く
+    // 共有メモリを開く (ホスト側ではQEMU起動時に指定した mem-path)
     int fd = open("/dev/shm/ivshmem", O_RDONLY);
-    if (fd < 0) { perror("open"); return 1; }
-    char *shared = mmap(NULL, 1024, PROT_READ, MAP_SHARED, fd, 0);
+    if (fd < 0) { perror("open /dev/shm/ivshmem"); return 1; }
+
+    char *shared = mmap(NULL, SHM_SIZE, PROT_READ, MAP_SHARED, fd, 0);
     if (shared == MAP_FAILED) { perror("mmap"); return 1; }
 
     printf("Shared memory content: %s\n", shared);
 
-    munmap(shared, 1024);
+    munmap(shared, SHM_SIZE);
     close(fd);
     close(client);
     close(sock);
