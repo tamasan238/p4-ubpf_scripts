@@ -1,0 +1,3 @@
+<vsock model='virtio'>
+    <cid auto='no'>3</cid>
+</vsock>
