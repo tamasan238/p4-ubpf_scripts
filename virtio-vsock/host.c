@@ -13,7 +13,7 @@ int main() {
     bind(s, (struct sockaddr*)&addr, sizeof(addr));
     listen(s, 1);
 
-    int client = accept(listen_sock, NULL, NULL);
+    int client = accept(s, NULL, NULL);
 
     write(client, "Hello guest", 12);  // ゲストに返信
     char buf[128];
