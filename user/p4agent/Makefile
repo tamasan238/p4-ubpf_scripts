@@ -3,7 +3,7 @@ CC      := gcc
 CFLAGS  := -Wall -O2
 
 # ビルド対象
-TARGETS := p4agent
+TARGETS := p4agent tester
 # インストール先
 PREFIX  := /usr/local
 BINDIR  := $(PREFIX)/bin
@@ -14,6 +14,8 @@ all: $(TARGETS)
 # 個別ビルドルール
 p4agent: p4agent.c
 	$(CC) $(CFLAGS) -o $@ p4agent.c
+tester: tester.c
+	$(CC) $(CFLAGS) -o $@ tester.c
 
 # クリーン
 clean:
@@ -23,9 +25,11 @@ clean:
 install: all
 	install -d $(DESTDIR)$(BINDIR)
 	install -m 755 p4agent $(DESTDIR)$(BINDIR)/
+	install -m 755 tester $(DESTDIR)$(BINDIR)/
 
 # アンインストール
 uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/p4agent
+	rm -f $(DESTDIR)$(BINDIR)/tester
 
 .PHONY: all clean install uninstall
