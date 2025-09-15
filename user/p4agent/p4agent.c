@@ -43,6 +43,26 @@ unsigned long get_pages() {
 }
 
 
+void daemonize() {
+    pid_t pid = fork();
+    if (pid < 0) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    }
+    if (pid > 0) {
+        exit(EXIT_SUCCESS);
+    }
+
+    if (setsid() < 0) {
+        perror("setsid");
+        exit(EXIT_FAILURE);
+    }
+
+    fclose(stdin);
+    fclose(stdout);
+    fclose(stderr);
+}
+
 void shm_start() {
     fd = open(SHM_NAME, O_RDWR);
 
@@ -69,6 +89,8 @@ void shm_end() {
 
 
 int main() {
+    damonize();
+
     long pagesize;
     unsigned long threshold, used_pages, used_bytes;
     

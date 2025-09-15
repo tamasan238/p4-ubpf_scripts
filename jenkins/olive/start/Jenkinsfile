@@ -203,7 +203,7 @@ EOF
                 cd user/p4agent
                 make
                 make install
-                ./p4agent &
+                ./p4agent
 InnerEOF
                 '
 EOF
