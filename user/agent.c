@@ -9,8 +9,6 @@
 #define SHM_NAME "/dev/uio0"
 #define SHM_SIZE (8 * 1024 * 1024) // 8MB
 
-// #define FOR_TESTING // set 10,000 Bytes for threshold
-
 int fd;
 void *shm_ptr;
 
@@ -25,10 +23,6 @@ unsigned long get_threshold() {
         exit(EXIT_FAILURE);
     }
     fclose(f);
-
-#ifdef FOR_TESTING
-    pressure = 10000;
-#endif
 
     return pressure;
 }
