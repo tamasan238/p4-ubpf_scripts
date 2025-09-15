@@ -166,6 +166,24 @@ EOF
                 '''
             }
         }
+        stage('[User] Build & Start P4Agent'){
+            steps{
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no olive-vm1.ksl.ci.kyutech.ac.jp '
+                sudo su << InnerEOF
+                cd p4-ubpf_scripts
+                git pull
+                cd user/p4agent
+                make
+                make install
+                ./p4agent &
+InnerEOF
+                '
+EOF
+                '''
+            }
+        }
         stage('[olive] Set CPU Affinity') {
             steps {
                 sh '''
