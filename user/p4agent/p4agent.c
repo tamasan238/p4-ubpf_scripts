@@ -89,7 +89,7 @@ void shm_end() {
 
 
 int main() {
-    damonize();
+    daemonize();
 
     long pagesize;
     unsigned long threshold, used_pages, used_bytes;
