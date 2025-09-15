@@ -34,7 +34,7 @@ unsigned long get_pages() {
     f = fopen("/proc/net/sockstat", "r");
     char buf[256];
     while (fgets(buf, sizeof(buf), f)) {
-        if (sscanf(buf, "TCP: %*d %*d %*d %*d %*d %lu", &used_pages) == 1)
+        if (sscanf(buf, "TCP: inuse %*d orphan %*d tw %*d alloc %*d mem %lu", &used_pages) == 1)
             break;
     }
     fclose(f);
