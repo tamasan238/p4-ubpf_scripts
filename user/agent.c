@@ -9,6 +9,8 @@
 #define SHM_NAME "/dev/uio0"
 #define SHM_SIZE (8 * 1024 * 1024) // 8MB
 
+#define FOR_TESTING // set 10,000 Bytes for threshold
+
 int fd;
 void *shm_ptr;
 
@@ -23,6 +25,10 @@ unsigned long get_threshold() {
         exit(EXIT_FAILURE);
     }
     fclose(f);
+
+#ifdef FOR_TESTING
+    pressure = 10000;
+#endif
 
     return pressure;
 }
@@ -86,7 +92,7 @@ int main() {
         used_pages = get_pages();
         used_bytes = used_pages * pagesize;
         memcpy(shm_ptr + sizeof(threshold), &used_bytes, sizeof(used_bytes));
-        syslog(LOG_WARNING, "wrote TCP used pages: %lu", used_pages);
+        syslog(LOG_WARNING, "wrote TCP used bytes: %lu", used_bytes);
         sleep(3); // sleep for 3 sec
     }
     
