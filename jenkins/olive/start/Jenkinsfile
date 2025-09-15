@@ -60,6 +60,32 @@ EOF
                 '''
             }
         }
+        stage('[p4] Update p4c repository') {
+            steps{
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
+                cd p4c
+                sudo git pull
+InnerEOF
+                '
+EOF
+                '''
+            }
+        }
+        stage('[p4] Build P4 program') {
+            steps{
+                sh '''
+                ssh olive.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
+                p4c-ubpf /home/iwai/iwai/p4c/testdata/p4_16_samples/ubpf.p4 -o /home/iwai/iwai/p4c/testdata/p4_16_samples/ubpf.c --emit-externs
+                clang -O2 -target bpf -c /home/iwai/iwai/p4c/testdata/p4_16_samples/ubpf_ext.c -o /home/iwai/iwai/p4c/testdata/p4_16_samples/ubpf.o -I /home/iwai/iwai/p4c/backends/ubpf/runtime -include /home/iwai/iwai/p4c/testdata/p4_16_samples/ubpf_ext.h -include /home/iwai/iwai/p4c/testdata/p4_16_samples/ubpf.c
+InnerEOF
+                '
+EOF
+                '''
+            }
+        }
         stage('[p4] Prepare ivshmem'){
             steps{
                 sh '''

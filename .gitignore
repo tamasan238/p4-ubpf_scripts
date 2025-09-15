@@ -1,2 +1,7 @@
 *.out
 *.log
+p4agent
+tester
+p4l
+p4l_server
+demo
