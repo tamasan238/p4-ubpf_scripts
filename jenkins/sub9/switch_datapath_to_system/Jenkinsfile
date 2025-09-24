@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('[sub9] Turn on kernel data_path') {
+            steps {
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                iptables -D INPUT -i eno12399np0 -j DROP
+                iptables -D FORWARD -i eno12399np0 -j DROP
+EOF
+                '
+                '''
+            }
+        }
+        stage('[sub9] Turn off Userspace TCP Segmentation Offload') {
+            steps {
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-vsctl set Open_vSwitch . other_config:userspace-tso-enable=false
+EOF
+                '
+                '''
+            }
+        }
+        stage('[sub9] Switch datapath_type to system') {
+            steps {
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-vsctl set bridge ovsbr1 datapath_type=system
+EOF
+                '
+                '''
+                sleep time: 5, unit: 'SECONDS'
+            }
+        }
+    }
+}
+

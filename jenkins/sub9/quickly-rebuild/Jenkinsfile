@@ -1,0 +1,119 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('[sub9] Update repositories') {
+            steps{
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
+                cd p4-ubpf_scripts && sudo git pull && cd ..
+                cd ovs && sudo git pull && cd ..
+EOF
+                '''
+            }
+        }
+        stage('[p4] Update repositories') {
+            steps{
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp <<'EOF'
+                ssh -o StrictHostKeyChecking=no p4.local <<'InnerEOF'
+                cd p4-ubpf_scripts && sudo git pull && cd ..
+                cd ubpf && sudo git pull && cd ..
+InnerEOF
+EOF
+                '''
+            }
+        }
+        stage('[p4] Rebuild uBPF Runtime'){
+            steps{
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no p4.local '
+                cd ubpf
+                sudo cmake --build build -v --target install
+                '
+EOF
+                '''
+            }
+        }
+        stage('[sub9] Rebuild OVS') {
+            steps {
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                cd ovs
+                make clean
+                ./boot.sh 
+                ./configure --with-dpdk=static
+                make -j$(nproc)
+                make install
+EOF
+                '
+                '''
+                sleep time: 5, unit: 'SECONDS'
+            }
+        }
+        stage('[p4] Restart uBPF Runtime'){
+            steps{
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no p4.local '
+                sudo ./p4-ubpf_scripts/p4/p4launcher/p4l shutdown
+                sudo ./p4-ubpf_scripts/p4/p4launcher/p4l_server
+                '
+EOF
+                '''
+            }
+        }
+        stage('[sub9] Restart OVS') {
+            steps {
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-ctl stop || true
+                sleep 3
+                ovs-ctl start
+EOF
+                '
+                '''
+                sleep time: 5, unit: 'SECONDS'
+            }
+        }
+        stage('[sub9] Set CPU Affinity') {
+            steps {
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
+                sudo ./p4-ubpf_scripts/kvm/affinity.sh
+EOF
+                '''
+            }
+        }
+        stage('[sub9] Set Priority') {
+            steps {
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
+                sudo ./p4-ubpf_scripts/kvm/priority.sh
+EOF
+                '''
+            }
+        }
+        stage('[p4] Set Priority') {
+            steps{
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp <<'EOF'
+                ssh -o StrictHostKeyChecking=no p4.local <<'InnerEOF'
+                sudo ./p4-ubpf_scripts/p4/priority.sh
+InnerEOF
+EOF
+                '''
+            }
+        }
+        stage('Check status') {
+            steps {
+                build job: 'P4 Shield - sub9/check network'
+            }
+        }
+    }
+}
+

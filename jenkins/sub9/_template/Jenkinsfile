@@ -1,0 +1,17 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Touch ksl-iwai:~/test/test') {
+            steps {
+                sh '''
+                ssh 192.168.0.80 '
+                cd test/
+                touch test
+                '
+                '''
+            }
+        }
+    }
+}
+

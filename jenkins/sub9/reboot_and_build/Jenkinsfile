@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+
+    stages {
+        stage("Notify") {
+            steps {
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp '
+                sudo wall "sub9はまもなく再起動します．"
+                '
+                '''
+                sleep time: 10, unit: 'SECONDS'
+            }
+        }
+        stage('Shutdown VMs') {
+            steps {
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp <<EOF
+                if virsh list --state-running | grep -q user; then
+                  virsh shutdown user
+                  while virsh list --state-running | grep -q user; do
+                    sleep 1
+                  done
+                fi
+
+                if virsh list --state-running | grep -q p4; then
+                  virsh shutdown p4
+                  while virsh list --state-running | grep -q p4; do
+                    sleep 1
+                  done
+                fi
+EOF
+                '''
+            }
+        }
+        stage('Reboot sub9') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh '''
+                    ssh sub9.ksl.ci.kyutech.ac.jp '
+                    sudo reboot
+                    '
+                    '''
+                }
+            }
+        }
+        stage('Wait for Reboot') {
+            steps {
+                sleep time: 6, unit: 'MINUTES'
+            }
+        }
+        stage('Build & Start') {
+            steps {
+                build job: 'P4 Shield - sub9/build'
+            }
+        }
+    }
+}
+
