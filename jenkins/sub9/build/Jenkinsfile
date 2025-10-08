@@ -115,7 +115,7 @@ EOF
         }
         stage('Start P4 Shield') {
             steps {
-                build job: 'P4 Shield - sub9/start'
+                build job: 'P4Shield - sub9/start'
             }
         }
     }

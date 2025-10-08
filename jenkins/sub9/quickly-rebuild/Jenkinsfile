@@ -111,7 +111,7 @@ EOF
         }
         stage('Check status') {
             steps {
-                build job: 'P4 Shield - sub9/check network'
+                build job: 'P4Shield - sub9/check network'
             }
         }
     }
