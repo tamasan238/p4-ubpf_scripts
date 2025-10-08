@@ -16,7 +16,7 @@ EOF
             steps{
                 sh '''
                 ssh sub9.ksl.ci.kyutech.ac.jp <<'EOF'
-                ssh -o StrictHostKeyChecking=no p4.local <<'InnerEOF'
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 <<'InnerEOF'
                 cd p4-ubpf_scripts && sudo git pull && cd ..
                 cd ubpf && sudo git pull && cd ..
 InnerEOF
@@ -28,7 +28,7 @@ EOF
             steps{
                 sh '''
                 ssh sub9.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no p4.local '
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 '
                 cd ubpf
                 sudo cmake --build build -v --target install
                 '
@@ -57,7 +57,7 @@ EOF
             steps{
                 sh '''
                 ssh sub9.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no p4.local '
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 '
                 sudo ./p4-ubpf_scripts/p4/p4launcher/p4l shutdown
                 sudo ./p4-ubpf_scripts/p4/p4launcher/p4l_server
                 '
@@ -102,7 +102,7 @@ EOF
             steps{
                 sh '''
                 ssh sub9.ksl.ci.kyutech.ac.jp <<'EOF'
-                ssh -o StrictHostKeyChecking=no p4.local <<'InnerEOF'
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 <<'InnerEOF'
                 sudo ./p4-ubpf_scripts/p4/priority.sh
 InnerEOF
 EOF

@@ -51,7 +51,7 @@ EOF
             steps {
                 sh '''
                 ssh sub9.ksl.ci.kyutech.ac.jp <<'EOF'
-                while ! ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no p4.local true 2>/dev/null; do
+                while ! ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no 192.168.122.125 true 2>/dev/null; do
                     :
                 done
 EOF
@@ -62,7 +62,7 @@ EOF
             steps{
                 sh '''
                 ssh sub9.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 ' << InnerEOF
                 cd p4-ubpf_scripts
                 sudo git pull
 InnerEOF
@@ -75,7 +75,7 @@ EOF
             steps{
                 sh '''
                 ssh sub9.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 ' << InnerEOF
                 cd p4c
                 sudo git pull
 InnerEOF
@@ -88,7 +88,7 @@ EOF
             steps{
                 sh '''
                 ssh sub9.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 ' << InnerEOF
                 p4c-ubpf /home/iwai/p4c/testdata/p4_16_samples/ubpf.p4 -o /home/iwai/p4c/testdata/p4_16_samples/ubpf.c --emit-externs
                 clang -O2 -target bpf -c /home/iwai/p4c/testdata/p4_16_samples/ubpf_ext.c -o /home/iwai/p4c/testdata/p4_16_samples/ubpf.o -I /home/iwai/p4c/backends/ubpf/runtime -include /home/iwai/p4c/testdata/p4_16_samples/ubpf_ext.h -include /home/iwai/p4c/testdata/p4_16_samples/ubpf.c
 InnerEOF
@@ -101,7 +101,7 @@ EOF
             steps{
                 sh '''
                 ssh sub9.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no p4.local '
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 '
                 sudo su << InnerEOF
                 cd p4-ubpf_scripts/p4
                 ./shm.sh || true
@@ -115,7 +115,7 @@ EOF
             steps{
                 sh '''
                 ssh sub9.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no p4.local '
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 '
                 sudo ./p4-ubpf_scripts/p4/p4launcher/p4l_server
                 '
 EOF
@@ -244,7 +244,7 @@ EOF
                 sleep time: 5, unit: 'SECONDS'
                 sh '''
                 ssh sub9.ksl.ci.kyutech.ac.jp <<'EOF'
-                ssh -o StrictHostKeyChecking=no p4.local <<'InnerEOF'
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 <<'InnerEOF'
                 sudo ./p4-ubpf_scripts/p4/priority.sh
 InnerEOF
 EOF
