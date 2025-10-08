@@ -18,21 +18,11 @@ pipeline {
                 sleep 10
 
                 echo "[TCP]"
-                echo "netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m xxx"
-                echo "1460, 65477"
                 netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m 1460
-                sleep 30
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m 65477
                 sleep 30
 
                 echo "[UDP]"
-                echo "netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m xxx"
-                echo "1472, 65489"
                 netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 1472
-                sleep 30
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 65489
-
-
 EOF
                 '''
             }
