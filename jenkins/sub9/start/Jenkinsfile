@@ -47,10 +47,20 @@ EOF
                 '''
             }
         }
+        stage('[p4] Test connection') {
+            steps {
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp <<'EOF'
+                while ! ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no p4.local true 2>/dev/null; do
+                    :
+                done
+EOF
+                '''
+            }
+        }
         stage('[p4] Update scripts repository') {
             steps{
                 sh '''
-                sleep 5
                 ssh sub9.ksl.ci.kyutech.ac.jp << EOF
                 ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
                 cd p4-ubpf_scripts
