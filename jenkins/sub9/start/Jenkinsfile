@@ -187,6 +187,17 @@ EOF
                 '''
             }
         }
+        stage('[User] Test connection') {
+            steps {
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp <<'EOF'
+                while ! ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no sub9-vm1.ksl.ci.kyutech.ac.jp true 2>/dev/null; do
+                    :
+                done
+EOF
+                '''
+            }
+        }
         stage('[User] Prepare ivshmem'){
             steps{
                 sh '''
