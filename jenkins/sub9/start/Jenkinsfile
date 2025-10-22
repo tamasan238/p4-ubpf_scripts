@@ -232,15 +232,15 @@ EOF
                 '''
             }
         }
-        stage('[sub9] Set CPU Affinity') {
-            steps {
-                sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
-                sudo ./p4-ubpf_scripts/kvm/affinity.sh
-EOF
-                '''
-            }
-        }
+//         stage('[sub9] Set CPU Affinity') {
+//             steps {
+//                 sh '''
+//                 ssh sub9.ksl.ci.kyutech.ac.jp << EOF
+//                 sudo ./p4-ubpf_scripts/kvm/affinity.sh
+// EOF
+//                 '''
+//             }
+//         }
         stage('[sub9] Set Priority') {
             steps {
                 sh '''
