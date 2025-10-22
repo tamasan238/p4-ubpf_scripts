@@ -5,7 +5,7 @@ pipeline {
         stage('[User] Latency'){
             steps{
                 sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
+                ssh peach.ksl.ci.kyutech.ac.jp << EOF
 
                 echo "[TCP]"
                 echo "netperf -t omni -H sub9-vm1.ksl.ci.kyutech.ac.jp -- -d rr -T TCP -k MIN_LATENCY,MEAN_LATENCY,P90_LATENCY,P99_LATENCY,MAX_LATENCY,STDDEV_LATENCY"
@@ -21,7 +21,7 @@ EOF
         stage('[User] Throughput'){
             steps{
                 sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
+                ssh peach.ksl.ci.kyutech.ac.jp << EOF
 
                 echo "[TCP]"
                 echo "netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM"
@@ -37,7 +37,7 @@ EOF
         stage('[User] Throughput - Detail'){
             steps{
                 sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
+                ssh peach.ksl.ci.kyutech.ac.jp << EOF
 
                 echo "[TCP]"
                 echo "netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m xxx"

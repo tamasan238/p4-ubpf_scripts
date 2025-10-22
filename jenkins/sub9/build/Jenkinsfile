@@ -96,7 +96,7 @@ EOF
                 cd ovs
                 make clean
                 ./boot.sh
-                ./configure --with-dpdk=static
+                ./configure --with-dpdk=static CFLAGS="-Ofast -msse4.2 -mpopcnt"
                 make -j$(nproc) && make install
 EOF
                 '
