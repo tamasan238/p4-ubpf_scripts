@@ -5,12 +5,23 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <limits.h>
 
 #define SHM_NAME "/dev/uio0"
 #define SHM_SIZE (8 * 1024 * 1024) // 8MB
 
+#define FOR_DEBUG
+
 int fd;
 void *shm_ptr;
+
+#ifdef FOR_DEBUG
+
+unsigned long get_threshold() {
+    return ULONG_MAX;
+}
+
+#else
 
 unsigned long get_threshold() {
     FILE *f;
@@ -26,6 +37,8 @@ unsigned long get_threshold() {
 
     return pressure;
 }
+
+#endif
 
 unsigned long get_pages() {
     FILE *f;
