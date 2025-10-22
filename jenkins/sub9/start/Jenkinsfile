@@ -130,6 +130,8 @@ EOF
                 export PATH=$PATH:/usr/local/share/openvswitch/scripts/
                 ovs-ctl stop || true
                 sleep 3
+                cd ~iwai/ovs-with-dpdk/ovs
+                make install
                 ovs-ctl start
 EOF
                 '
