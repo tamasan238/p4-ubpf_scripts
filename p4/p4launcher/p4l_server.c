@@ -281,7 +281,7 @@ void start_children(int num)
 
 void stop_all_children()
 {
-    for (int i = 0; i < runtimes; i++)
+    for (int i = 0; i < MAX_CONNECTIONS; i++)
     {
         if (p4runtime[i].p4runtime_id > 0)
         {
@@ -291,7 +291,7 @@ void stop_all_children()
     }
 
     // 終了待ち
-    for (int i = 0; i < runtimes; i++)
+    for (int i = 0; i < MAX_CONNECTIONS; i++)
     {
         if (p4runtime[i].p4runtime_id > 0)
         {
@@ -327,17 +327,16 @@ void adjust_children(int target)
     {
         syslog(LOG_INFO, "ランタイム追加");
         start_children(target);
-        runtimes = target;
     }
     else if (target < runtimes)
     {
         syslog(LOG_INFO, "ランタイム削減");
-        for (int i = runtimes - 1; i >= target; i--)
+        for (int i = 0; i < MAX_CONNECTIONS; i++)
         {
             syslog(LOG_INFO, "i: %d, runtime_id: %d, in_use: %s", 
                 i, p4runtime[i].p4runtime_id, 
                 p4runtime[i].in_use ? "true" : "false");
-                
+
             if (p4runtime[i].p4runtime_id > 0 && p4runtime[i].in_use == false)
             {
                 if (kill(p4runtime[i].p4runtime_id, SIGTERM) == -1)
