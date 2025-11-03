@@ -38,6 +38,17 @@ EOF
                 '''
             }
         }
+        stage('[p4] Test connection') {
+            steps {
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp <<'EOF'
+                while ! ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no 192.168.122.125 true 2>/dev/null; do
+                    :
+                done
+EOF
+                '''
+            }
+        }
         stage('[p4] Update scripts repository') {
             steps{
                 sh '''
