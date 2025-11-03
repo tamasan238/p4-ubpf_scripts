@@ -52,13 +52,13 @@ EOF
         stage('[p4] Update scripts repository') {
             steps{
                 sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no 192.168.122.125 ' << InnerEOF
+                ssh sub9.ksl.ci.kyutech.ac.jp << 'EOF'
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 << 'InnerEOF'
                 cd p4-ubpf_scripts
                 sudo git pull
 InnerEOF
-                '
 EOF
+
                 '''
             }
         }
