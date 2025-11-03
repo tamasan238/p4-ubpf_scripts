@@ -315,22 +315,29 @@ void adjust_children(int target)
         return;
     }
 
+    syslog(LOG_INFO, "【ランタイム数調整】現在数：%d, 目標値：%d", runtimes, target);
+
     if (target > MAX_CONNECTIONS)
     {
+        syslog(LOG_INFO, "目標値をMAX_CONNECTIONS(%d)に変更", MAX_CONNECTIONS);
         target = MAX_CONNECTIONS;
     }
 
     if (target > runtimes)
     {
-        // add runtimes
+        syslog(LOG_INFO, "ランタイム追加");
         start_children(target);
-        runtimes++;
+        runtimes = target;
     }
     else if (target < runtimes)
     {
-        // delete runtimes
+        syslog(LOG_INFO, "ランタイム削減");
         for (int i = runtimes - 1; i >= target; i--)
         {
+            syslog(LOG_INFO, "i: %d, runtime_id: %d, in_use: %s", 
+                i, p4runtime[i].p4runtime_id, 
+                p4runtime[i].in_use ? "true" : "false");
+                
             if (p4runtime[i].p4runtime_id > 0 && p4runtime[i].in_use == false)
             {
                 if (kill(p4runtime[i].p4runtime_id, SIGTERM) == -1)
