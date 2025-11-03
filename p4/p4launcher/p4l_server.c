@@ -152,6 +152,7 @@ void link_add(int i)
 {
     // start runtime
     adjust_children(runtimes + 1);
+    usleep(1000); // wait for start
     for (int j = 0; j < MAX_CONNECTIONS; j++)
     {
         if (p4runtime[j].p4runtime_id != -1 && p4runtime[j].in_use == false)
