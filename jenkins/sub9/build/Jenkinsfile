@@ -62,6 +62,22 @@ EOF
                 '''
             }
         }
+        stage('[p4] Build P4Launcher') {
+            steps{
+                sh '''
+                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 '
+                sudo su << InnerEOF
+                cd p4-ubpf_scripts/p4/p4launcher
+                make clean
+                make
+                make install
+InnerEOF
+                '
+EOF
+                '''
+            }
+        }
         stage('[p4] Update ubpf repository') {
             steps{
                 sh '''
