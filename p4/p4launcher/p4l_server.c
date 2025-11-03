@@ -83,7 +83,6 @@ bool *is_locked;
 // fork
 int server_sock;
 int runtimes = 0; // can change in adjust_children()
-int available_runtimes = 0; // can change in link_add(), link_del()
 P4runtime p4runtime[MAX_CONNECTIONS];
 
 int main()
@@ -104,9 +103,6 @@ int main()
     start_children(INIT_CLIENTS);
     while (1)
     {
-        // if(available_runtimes < 4)
-        //     adjust_children();      // todo: Must change here (add 余裕)
-
         check_ovs();
         usleep(WAIT_TIME);
 
@@ -154,18 +150,14 @@ void check_ovs(void)
 
 void link_add(int i)
 {
-    if (available_runtimes < 1)
-    {
-        // start runtime
-        adjust_children(runtimes + 1);
-    }
+    // start runtime
+    adjust_children(runtimes + 1);
     for (int j = 0; j < MAX_CONNECTIONS; j++)
     {
         if (p4runtime[j].p4runtime_id != -1 && p4runtime[j].in_use == false)
         {
             // change status of p4runtime
             p4runtime[j].in_use = true;
-            available_runtimes--;
             // add session
             session[i].p4runtime_id = p4runtime[j].p4runtime_id;
             syslog(LOG_WARNING, "Session created | OVS ID: %lld, P4 ID: %d, i: %d",
@@ -183,7 +175,6 @@ void link_del(int i)
         if (p4runtime[j].p4runtime_id == session[i].p4runtime_id)
         {
             p4runtime[j].in_use = false;
-            available_runtimes++;
             syslog(LOG_WARNING, "Session closed | OVS ID: %lld, P4 ID: %d, i: %d",
                 session[i].ovs_thread_id, session[i].p4runtime_id, i);
             break;
@@ -270,7 +261,6 @@ void start_children(int num)
                 {
                     p4runtime[i].p4runtime_id = pid;
                     p4runtime[i].in_use = false;
-                    available_runtimes++;
                     break;
                 }
             }
