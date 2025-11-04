@@ -1,0 +1,17 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Terminate') {
+            steps {
+                build job: 'P4Shield - cloud-2/terminate'
+            }
+        }
+        stage('Build & Start') {
+            steps {
+                build job: 'P4Shield - cloud-2/build'
+            }
+        }
+    }
+}
+
