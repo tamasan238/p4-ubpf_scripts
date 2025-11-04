@@ -2,76 +2,24 @@ pipeline {
     agent any
 
     stages {
-        stage('[User] Latency'){
+        stage('[peach] Update scripts'){
             steps{
                 sh '''
                 ssh peach.ksl.ci.kyutech.ac.jp << EOF
 
-                echo "[TCP]"
-                echo "netperf -t omni -H sub9-vm1.ksl.ci.kyutech.ac.jp -- -d rr -T TCP -k MIN_LATENCY,MEAN_LATENCY,P90_LATENCY,P99_LATENCY,MAX_LATENCY,STDDEV_LATENCY"
-                netperf -t omni -H sub9-vm1.ksl.ci.kyutech.ac.jp -- -d rr -T TCP -k MIN_LATENCY,MEAN_LATENCY,P90_LATENCY,P99_LATENCY,MAX_LATENCY,STDDEV_LATENCY
-
-                echo "[UDP]"
-                echo "netperf -t omni -H sub9-vm1.ksl.ci.kyutech.ac.jp -- -d rr -T UDP -k MIN_LATENCY,MEAN_LATENCY,P90_LATENCY,P99_LATENCY,MAX_LATENCY,STDDEV_LATENCY"
-                netperf -t omni -H sub9-vm1.ksl.ci.kyutech.ac.jp -- -d rr -T UDP -k MIN_LATENCY,MEAN_LATENCY,P90_LATENCY,P99_LATENCY,MAX_LATENCY,STDDEV_LATENCY
+                cd p4-ubpf_scripts
+                sudo git pull
 EOF
                 '''
             }
         }
-        stage('[User] Throughput'){
+        stage('[User] Measure'){
             steps{
                 sh '''
                 ssh peach.ksl.ci.kyutech.ac.jp << EOF
 
-                echo "[TCP]"
-                echo "netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM"
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM
-
-                echo "[UDP]"
-                echo "netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 1472"
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 1472
-EOF
-                '''
-            }
-        }
-        stage('[User] Throughput - Detail'){
-            steps{
-                sh '''
-                ssh peach.ksl.ci.kyutech.ac.jp << EOF
-
-                echo "[TCP]"
-                echo "netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m xxx"
-                echo "6, 70, 198, 454, 966, 1222, 1460, 1990, 4038, 8134, 16326, 32710, 65477"
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m 6
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m 70
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m 198
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m 454
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m 966
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m 1222
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m 1460
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m 1990
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m 4038
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m 8134
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m 16326
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m 32710
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m 65477
-
-                echo "[UDP]"
-                echo "netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m xxx"
-                echo "18, 82, 210, 466, 978, 1234, 1472, 2002, 4050, 8146, 16338, 32722, 65489"
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 18
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 82
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 210
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 466
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 978
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 1234
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 1472
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 2002
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 4050
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 8146
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 16338
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 32722
-                netperf -H sub9-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 65489
+                cd p4-ubpf_scripts/measure/
+                bash measure.sh sub9-vm1.ksl.ci.kyutech.ac.jp
 EOF
                 '''
             }
