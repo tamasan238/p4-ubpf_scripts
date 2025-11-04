@@ -6,7 +6,9 @@ D=/tmp/p4shield/netperf
 rm -rf "$D"
 mkdir -p "$D"
 
+echo ""
 echo "## Latency ##"
+echo ""
 
 echo "[TCP]"
 echo "netperf -t omni -H $H -- -d rr -T TCP -k MIN_LATENCY,MEAN_LATENCY,P90_LATENCY,P99_LATENCY,MAX_LATENCY,STDDEV_LATENCY"
@@ -16,7 +18,9 @@ echo "[UDP]"
 echo "netperf -t omni -H $H -- -d rr -T UDP -k MIN_LATENCY,MEAN_LATENCY,P90_LATENCY,P99_LATENCY,MAX_LATENCY,STDDEV_LATENCY"
 netperf -t omni -H $H -- -d rr -T UDP -k MIN_LATENCY,MEAN_LATENCY,P90_LATENCY,P99_LATENCY,MAX_LATENCY,STDDEV_LATENCY
 
+echo ""
 echo "## Throughput ##"
+echo ""
 
 echo "[TCP]"
 for M in 6 70 198 454 966 1222 1460 1990 4038 8134 16326 32710 65477
