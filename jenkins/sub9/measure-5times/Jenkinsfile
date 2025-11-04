@@ -4,7 +4,7 @@ pipeline {
         stage('loop') {
             steps {
                 script {
-                    for (i in 1..5) {
+                    for(i in [1,2,3,4,5]) {
                         build job: 'P4Shield - sub9/measure'
                     }
                 }
