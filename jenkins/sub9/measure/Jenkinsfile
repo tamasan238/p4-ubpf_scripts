@@ -8,7 +8,7 @@ pipeline {
                 ssh peach.ksl.ci.kyutech.ac.jp << EOF
 
                 cd p4-ubpf_scripts
-                sudo git pull
+                git pull
 EOF
                 '''
             }
