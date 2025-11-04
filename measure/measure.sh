@@ -28,6 +28,7 @@ do
   echo "$ netperf -H $H -t TCP_STREAM -- -m $M"
   netperf -H "$H" -t TCP_STREAM -- -m "$M" | tee "$D"/tcp_${M}.log \
   | tee >(python3 parse-bps.py "$D"/tcp-bps.log)
+  echo ""
   sleep 5
 done
 
