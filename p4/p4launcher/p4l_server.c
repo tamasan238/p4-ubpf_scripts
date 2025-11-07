@@ -342,9 +342,15 @@ void adjust_children(int target)
                 }
                 syslog(LOG_INFO, "子プロセス %d 終了 (PID=%d)", i, p4runtime[i].p4runtime_id);
                 p4runtime[i].p4runtime_id = -1;
-                runtimes--;
             }
         }
+        int count = 0;
+        for (int i = 0; i < MAX_CONNECTIONS; i++)
+        {
+            if(p4runtime[i].in_use == true)
+                count++;
+        }
+        runtimes = count;
     }
 }
 
