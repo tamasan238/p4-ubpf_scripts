@@ -28,15 +28,19 @@ typedef struct {
 } P4runtime;
 
 #define WAIT_TIME_US 1000
+
 #define SHM_NAME "/dev/uio0"
 #define SHM_SIZE (8 * 1024 * 1024)
 #define VM_AREA 0
 #define META_AREA (VM_AREA + 2 * 1024 * 1024)
 #define PACKETS_AREA (META_AREA + 2 * 1024 * 1024)
+
 #define SHM_SESSION_TABLE 0
 #define SHM_TABLE_IS_LOCKED (SHM_SESSION_TABLE + sizeof(Connection) * MAX_CONNECTIONS)
+
 #define MAX_CONNECTIONS 32
 #define INIT_CLIENTS 1
+
 #define UBPF_RUNTIME_PATH "/home/iwai/ubpf/build/bin/ubpf_test"
 #define UBPF_RUNTIME "ubpf_test"
 #define UBPF_BYTECODE "/home/iwai/p4c/testdata/p4_16_samples/ubpf.o"
