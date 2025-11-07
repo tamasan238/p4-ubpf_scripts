@@ -81,13 +81,13 @@ EOF
         stage('[p4] Update ubpf repository') {
             steps{
                 sh '''
-                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no 192.168.122.125 ' << InnerEOF
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << 'EOF'
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 << 'InnerEOF'
                 cd ubpf
                 sudo git pull
 InnerEOF
-                '
 EOF
+
                 '''
             }
         }
