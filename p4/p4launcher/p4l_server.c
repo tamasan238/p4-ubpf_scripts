@@ -15,6 +15,413 @@
 #include <errno.h>
 #include <string.h>
 #include <syslog.h>
+#include <fcntl.h>
+
+typedef struct {
+    long long ovs_thread_id;
+    int p4runtime_id;
+} Connection;
+
+typedef struct {
+    pid_t pid;
+    bool in_use;
+} P4runtime;
+
+#define WAIT_TIME_US 1000
+#define SHM_NAME "/dev/uio0"
+#define SHM_SIZE (8 * 1024 * 1024)
+#define VM_AREA 0
+#define META_AREA (VM_AREA + 2 * 1024 * 1024)
+#define PACKETS_AREA (META_AREA + 2 * 1024 * 1024)
+#define SHM_SESSION_TABLE 0
+#define SHM_TABLE_IS_LOCKED (SHM_SESSION_TABLE + sizeof(Connection) * MAX_CONNECTIONS)
+#define MAX_CONNECTIONS 32
+#define INIT_CLIENTS 1
+#define UBPF_RUNTIME_PATH "/home/iwai/ubpf/build/bin/ubpf_test"
+#define UBPF_RUNTIME "ubpf_test"
+#define UBPF_BYTECODE "/home/iwai/p4c/testdata/p4_16_samples/ubpf.o"
+#define TARGET_PROCESS "ubpf_test"
+
+static int shm_fd = -1;
+static void *shm_base = NULL;
+static void *shm_meta = NULL;
+static Connection *session_table = NULL;
+static bool *table_locked = NULL;
+
+static int server_sock = -1;
+static int runtimes = 0;
+static P4runtime runtimes_table[MAX_CONNECTIONS];
+
+static void log_and_exit(const char *msg)
+{
+    syslog(LOG_ERR, "%s", msg);
+    exit(EXIT_FAILURE);
+}
+
+static void safe_close(int fd)
+{
+    if (fd >= 0) {
+        close(fd);
+    }
+}
+
+static void shm_open_and_map(void)
+{
+    shm_fd = open(SHM_NAME, O_RDWR);
+    if (shm_fd < 0) {
+        log_and_exit("shm cannot open. please try with sudo");
+    }
+
+    shm_base = mmap(NULL, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 4096);
+    if (shm_base == MAP_FAILED) {
+        log_and_exit("shm cannot mmap. maybe not prepared ivshmem-server or ivshmem-uio drivers");
+    }
+
+    shm_meta = (char *)shm_base + META_AREA;
+    session_table = (Connection *)((char *)shm_meta + SHM_SESSION_TABLE);
+    table_locked = (bool *)((char *)shm_meta + SHM_TABLE_IS_LOCKED);
+}
+
+static void shm_initialize_table(void)
+{
+    for (int i = 0; i < MAX_CONNECTIONS; ++i) {
+        session_table[i].ovs_thread_id = -1;
+        session_table[i].p4runtime_id = -1;
+    }
+    *table_locked = false;
+}
+
+static void shm_unmap_and_close(void)
+{
+    if (shm_base && shm_base != MAP_FAILED) {
+        munmap(shm_base, SHM_SIZE);
+        shm_base = NULL;
+    }
+    safe_close(shm_fd);
+    shm_fd = -1;
+}
+
+static void add_runtime_entry(pid_t pid)
+{
+    for (int i = 0; i < MAX_CONNECTIONS; ++i) {
+        if (runtimes_table[i].pid == -1) {
+            runtimes_table[i].pid = pid;
+            runtimes_table[i].in_use = false;
+            return;
+        }
+    }
+}
+
+static void init_runtimes_table(void)
+{
+    for (int i = 0; i < MAX_CONNECTIONS; ++i) {
+        runtimes_table[i].pid = -1;
+        runtimes_table[i].in_use = false;
+    }
+    runtimes = 0;
+}
+
+static void spawn_runtime_process(void)
+{
+    pid_t pid = fork();
+    if (pid < 0) {
+        syslog(LOG_ERR, "fork failure");
+        return;
+    }
+    if (pid == 0) {
+        execl(UBPF_RUNTIME_PATH, UBPF_RUNTIME, UBPF_BYTECODE, NULL);
+        _exit(1);
+    } else {
+        add_runtime_entry(pid);
+        runtimes++;
+        syslog(LOG_INFO, "started child (PID=%d)", pid);
+    }
+}
+
+static void start_children(int num)
+{
+    if (num > MAX_CONNECTIONS) num = MAX_CONNECTIONS;
+    while (runtimes < num) {
+        spawn_runtime_process();
+    }
+}
+
+static void terminate_child(pid_t pid)
+{
+    if (pid > 0) {
+        kill(pid, SIGTERM);
+        waitpid(pid, NULL, 0);
+    }
+}
+
+static void stop_all_children(void)
+{
+    for (int i = 0; i < MAX_CONNECTIONS; ++i) {
+        if (runtimes_table[i].pid > 0) {
+            terminate_child(runtimes_table[i].pid);
+            runtimes_table[i].pid = -1;
+            runtimes_table[i].in_use = false;
+        }
+    }
+    runtimes = 0;
+}
+
+static void adjust_children(int target)
+{
+    if (target == runtimes) return;
+    if (target > MAX_CONNECTIONS) target = MAX_CONNECTIONS;
+    if (target > runtimes) {
+        start_children(target);
+    } else {
+        for (int i = 0; i < MAX_CONNECTIONS && runtimes > target; ++i) {
+            if (runtimes_table[i].pid > 0 && !runtimes_table[i].in_use) {
+                terminate_child(runtimes_table[i].pid);
+                runtimes_table[i].pid = -1;
+                runtimes_table[i].in_use = false;
+                runtimes--;
+            }
+        }
+    }
+}
+
+static int find_free_runtime_index(void)
+{
+    for (int i = 0; i < MAX_CONNECTIONS; ++i) {
+        if (runtimes_table[i].pid > 0 && !runtimes_table[i].in_use) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static void link_add(int idx)
+{
+    adjust_children(runtimes + 1);
+    usleep(1000);
+    int free_idx = find_free_runtime_index();
+    if (free_idx >= 0) {
+        runtimes_table[free_idx].in_use = true;
+        session_table[idx].p4runtime_id = runtimes_table[free_idx].pid;
+        syslog(LOG_WARNING, "Session created | OVS ID: %lld, P4 ID: %d, i: %d",
+               session_table[idx].ovs_thread_id, session_table[idx].p4runtime_id, idx);
+    } else {
+        syslog(LOG_ERR, "no free runtime found after spawn");
+    }
+}
+
+static void link_del(int idx)
+{
+    int pid = session_table[idx].p4runtime_id;
+    for (int i = 0; i < MAX_CONNECTIONS; ++i) {
+        if (runtimes_table[i].pid == pid) {
+            runtimes_table[i].in_use = false;
+            break;
+        }
+    }
+    session_table[idx].p4runtime_id = -1;
+    adjust_children(runtimes - 1);
+}
+
+static void check_ovs_sessions(void)
+{
+    for (int i = 0; i < MAX_CONNECTIONS; ++i) {
+        if (session_table[i].ovs_thread_id > 0 && session_table[i].p4runtime_id < 0) {
+            syslog(LOG_WARNING, "Found a new session | OVS ID: %lld, i: %d",
+                   session_table[i].ovs_thread_id, i);
+            link_add(i);
+        }
+        if (session_table[i].ovs_thread_id < 0 && session_table[i].p4runtime_id > 0) {
+            syslog(LOG_WARNING, "Found a lost session | P4 ID: %d, i: %d",
+                   session_table[i].p4runtime_id, i);
+            link_del(i);
+        }
+    }
+}
+
+static void sigchld_handler(int signo)
+{
+    (void)signo;
+    while (waitpid(-1, NULL, WNOHANG) > 0) {}
+}
+
+static void setup_signal_handlers(void)
+{
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = sigchld_handler;
+    sa.sa_flags = SA_RESTART;
+    sigemptyset(&sa.sa_mask);
+    sigaction(SIGCHLD, &sa, NULL);
+}
+
+static void setup_server_socket(void)
+{
+    struct sockaddr_un addr;
+    unlink(SOCKET_PATH);
+    server_sock = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (server_sock < 0) {
+        log_and_exit("socket failure");
+    }
+    memset(&addr, 0, sizeof(addr));
+    addr.sun_family = AF_UNIX;
+    strncpy(addr.sun_path, SOCKET_PATH, sizeof(addr.sun_path) - 1);
+    if (bind(server_sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+        safe_close(server_sock);
+        log_and_exit("bind failure");
+    }
+    if (listen(server_sock, 5) < 0) {
+        safe_close(server_sock);
+        log_and_exit("listen failure");
+    }
+    int flags = fcntl(server_sock, F_GETFL, 0);
+    fcntl(server_sock, F_SETFL, flags | O_NONBLOCK);
+}
+
+static void handle_start_command(int client_fd)
+{
+    dprintf(client_fd, "すでに起動しています\n");
+}
+
+static void handle_update_command(int client_fd, const char *arg)
+{
+    int num = atoi(arg);
+    adjust_children(num);
+    dprintf(client_fd, "子プロセス数を %d 個に調整しました\n", num);
+}
+
+static void handle_stop_command(int client_fd)
+{
+    stop_all_children();
+    dprintf(client_fd, "子プロセスをすべて停止しました\n");
+}
+
+static void handle_status_command(int client_fd)
+{
+    dprintf(client_fd, "子プロセス数: %d\n", runtimes);
+    int reported = 0;
+    for (int i = 0; i < MAX_CONNECTIONS && reported < runtimes; ++i) {
+        if (runtimes_table[i].pid > 0) {
+            dprintf(client_fd, "  PID: %d\n", runtimes_table[i].pid);
+            reported++;
+        }
+    }
+}
+
+static void handle_shutdown_command(int client_fd)
+{
+    char shutdown_cmd[1024];
+    snprintf(shutdown_cmd, sizeof(shutdown_cmd), "pkill %s", TARGET_PROCESS);
+    dprintf(client_fd, "P4Launcherとすべての子プロセスを終了します\n");
+    int ret = system(shutdown_cmd);
+    dprintf(client_fd, "%d", ret);
+}
+
+static void handle_client(int client_fd)
+{
+    char buffer[BUFFER_SIZE];
+    ssize_t n = read(client_fd, buffer, sizeof(buffer) - 1);
+    if (n <= 0) {
+        close(client_fd);
+        return;
+    }
+    buffer[n] = '\0';
+
+    syslog(LOG_INFO, "受信コマンド: %s", buffer);
+
+    if (strncmp(buffer, "start ", 6) == 0) {
+        handle_start_command(client_fd);
+    } else if (strncmp(buffer, "update ", 7) == 0) {
+        handle_update_command(client_fd, buffer + 7);
+    } else if (strncmp(buffer, "stop", 4) == 0) {
+        handle_stop_command(client_fd);
+    } else if (strncmp(buffer, "status", 6) == 0) {
+        handle_status_command(client_fd);
+    } else if (strncmp(buffer, "shutdown", 8) == 0) {
+        handle_shutdown_command(client_fd);
+    } else {
+        dprintf(client_fd, "不明なコマンド\n");
+    }
+    close(client_fd);
+}
+
+static void daemonize_process(void)
+{
+    pid_t pid = fork();
+    if (pid < 0) exit(EXIT_FAILURE);
+    if (pid > 0) exit(EXIT_SUCCESS);
+
+    if (setsid() < 0) exit(EXIT_FAILURE);
+
+    pid = fork();
+    if (pid < 0) exit(EXIT_FAILURE);
+    if (pid > 0) exit(EXIT_SUCCESS);
+
+    if (chdir("/") < 0) exit(EXIT_FAILURE);
+    umask(0);
+
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+
+    int fd = open("/dev/null", O_RDWR);
+    if (fd != STDIN_FILENO) exit(EXIT_FAILURE);
+    dup2(fd, STDOUT_FILENO);
+    dup2(fd, STDERR_FILENO);
+}
+
+int main(void)
+{
+    openlog("P4Launcher", LOG_PID | LOG_NDELAY, LOG_DAEMON);
+    daemonize_process();
+    setup_signal_handlers();
+    shm_open_and_map();
+    shm_initialize_table();
+    init_runtimes_table();
+    setup_server_socket();
+
+    start_children(INIT_CLIENTS);
+
+    while (1) {
+        check_ovs_sessions();
+        usleep(WAIT_TIME_US);
+
+        int client_fd = accept(server_sock, NULL, NULL);
+        if (client_fd < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                continue;
+            } else {
+                syslog(LOG_ERR, "accept failure");
+                continue;
+            }
+        }
+        handle_client(client_fd);
+    }
+
+    shm_unmap_and_close();
+    closelog();
+    return 0;
+}
+
+
+#ifdef OLD
+
+#define _GNU_SOURCE
+#include "common.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <string.h>
+#include <syslog.h>
 
 typedef struct
 {
@@ -530,3 +937,5 @@ void daemonize(void)
     dup2(fd, STDOUT_FILENO);
     dup2(fd, STDERR_FILENO);
 }
+
+#endif
