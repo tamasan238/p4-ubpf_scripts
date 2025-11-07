@@ -7,7 +7,7 @@ pipeline {
                 sh '''
                 ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
                 cd p4-ubpf_scripts
-                git pull
+                sudo git pull
 EOF
                 '''
             }
