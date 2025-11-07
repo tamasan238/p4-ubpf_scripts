@@ -351,6 +351,7 @@ void adjust_children(int target)
                 count++;
         }
         runtimes = count;
+        syslog(LOG_INFO, "ランタイム現在数: %d", runtimes);
     }
 }
 
