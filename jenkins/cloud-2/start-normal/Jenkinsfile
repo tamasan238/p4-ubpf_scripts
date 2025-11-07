@@ -41,18 +41,18 @@ EOF
 //                 '''
 //             }
 //         }
-//         stage('[cloud-2] Turn on Userspace TCP Segmentation Offload') {
-//             steps {
-//                 sh '''
-//                 ssh cloud-2.ksl.ci.kyutech.ac.jp '
-//                 sudo su <<EOF
-//                 export PATH=$PATH:/usr/local/share/openvswitch/scripts/
-//                 ovs-vsctl set Open_vSwitch . other_config:userspace-tso-enable=true
-// EOF
-//                 '
-//                 '''
-//             }
-//         }
+        stage('[cloud-2] Turn on Userspace TCP Segmentation Offload') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-vsctl set Open_vSwitch . other_config:userspace-tso-enable=true
+EOF
+                '
+                '''
+            }
+        }
         stage('[cloud-2] Start User VM') {
             steps {
                 sh '''
