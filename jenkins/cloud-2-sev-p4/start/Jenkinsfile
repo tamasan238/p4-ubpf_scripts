@@ -266,7 +266,7 @@ EOF
         }
         stage('Check status') {
             steps {
-                build job: 'P4Shield - cloud-2/check network'
+                build job: 'P4Shield - cloud-2-sev-p4/check network'
             }
         }
     }
