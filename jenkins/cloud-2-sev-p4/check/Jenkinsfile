@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('[User] Latency'){
+            steps{
+                sh '''
+                ssh peach.ksl.ci.kyutech.ac.jp << EOF
+
+                echo "[TCP]"
+                echo "netperf -t omni -H cloud-2-vm1.ksl.ci.kyutech.ac.jp -- -d rr -T TCP -k MIN_LATENCY,MEAN_LATENCY,P90_LATENCY,P99_LATENCY,MAX_LATENCY,STDDEV_LATENCY"
+                netperf -t omni -H cloud-2-vm1.ksl.ci.kyutech.ac.jp -- -d rr -T TCP -k MIN_LATENCY,MEAN_LATENCY,P90_LATENCY,P99_LATENCY,MAX_LATENCY,STDDEV_LATENCY
+                sleep 10
+
+                echo "[UDP]"
+                echo "netperf -t omni -H cloud-2-vm1.ksl.ci.kyutech.ac.jp -- -d rr -T UDP -k MIN_LATENCY,MEAN_LATENCY,P90_LATENCY,P99_LATENCY,MAX_LATENCY,STDDEV_LATENCY"
+                netperf -t omni -H cloud-2-vm1.ksl.ci.kyutech.ac.jp -- -d rr -T UDP -k MIN_LATENCY,MEAN_LATENCY,P90_LATENCY,P99_LATENCY,MAX_LATENCY,STDDEV_LATENCY
+                # sleep 10
+
+                # echo "[TCP]"
+                # netperf -H cloud-2-vm1.ksl.ci.kyutech.ac.jp -t TCP_STREAM -- -m 1460
+                # sleep 30
+
+                # echo "[UDP]"
+                # netperf -H cloud-2-vm1.ksl.ci.kyutech.ac.jp -t UDP_STREAM -- -m 1472
+EOF
+                '''
+            }
+        }
+    }
+}
+

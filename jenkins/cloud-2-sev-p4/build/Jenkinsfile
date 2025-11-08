@@ -1,0 +1,150 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('[cloud-2] Update scripts repository') {
+            steps{
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
+                cd p4-ubpf_scripts
+                sudo git pull
+EOF
+                '''
+            }
+        }
+        stage('[cloud-2] Start P4 VM') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp <<EOF
+                if virsh domstate p4_sev | grep -q running; then
+                    echo "P4 VM is already running."
+                else
+                    echo "Starting P4 VM..."
+                    virsh start p4_sev
+                    for i in {1..30}; do
+                        if virsh domstate p4_sev | grep -q running; then
+                            echo "P4 VM is now running."
+                            sleep 5
+                            break
+                        fi
+                        sleep 1
+                    done
+                    if ! virsh domstate p4_sev | grep -q running; then
+                        echo "Error: P4 VM did not start within expected time."
+                        exit 1
+                    fi
+                fi
+EOF
+                '''
+            }
+        }
+        stage('[p4] Test connection') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp <<'EOF'
+                while ! ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no 192.168.122.125 true 2>/dev/null; do
+                    :
+                done
+EOF
+                '''
+            }
+        }
+        stage('[p4] Update scripts repository') {
+            steps{
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << 'EOF'
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 << 'InnerEOF'
+                cd p4-ubpf_scripts
+                sudo git pull
+InnerEOF
+EOF
+
+                '''
+            }
+        }
+        stage('[p4] Build P4Launcher') {
+            steps{
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 '
+                sudo su << InnerEOF
+                cd p4-ubpf_scripts/p4/p4launcher
+                make clean
+                make
+                make install
+InnerEOF
+                '
+EOF
+                '''
+            }
+        }
+        stage('[p4] Update ubpf repository') {
+            steps{
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << 'EOF'
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 << 'InnerEOF'
+                cd ubpf
+                sudo git pull
+InnerEOF
+EOF
+
+                '''
+            }
+        }
+        stage('[p4] Build P4 & uBPF Runtime') {
+            steps{
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 '
+                sudo su << InnerEOF
+                cd ubpf
+                cmake --build build -v --target install
+InnerEOF
+                '
+EOF
+                '''
+            }
+        }
+        stage('[cloud-2] Update OVS repository') {
+            steps{
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
+                cd ovs
+                sudo git pull
+EOF
+                '''
+            }
+        }
+        stage('[cloud-2] Build OVS') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                cd ovs
+                make clean
+                ./boot.sh
+                ./configure --with-dpdk=static CFLAGS="-Ofast -msse4.2 -mpopcnt"
+                make -j$(nproc) && make install
+EOF
+                '
+                '''
+            }
+        }
+        stage('[cloud-2] Shutdown P4 VM') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp <<EOF
+                virsh shutdown p4_sev
+EOF
+                '''
+                sleep time: 30, unit: 'SECONDS'
+            }
+        }
+        stage('Start P4 Shield') {
+            steps {
+                build job: 'P4Shield - cloud-2/start'
+            }
+        }
+    }
+}
+

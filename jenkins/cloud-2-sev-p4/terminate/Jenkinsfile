@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Shutdown VMs') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp <<EOF
+                if virsh list --state-running | grep -q user; then
+                  virsh shutdown user
+                  while virsh list --state-running | grep -q user; do
+                    sleep 1
+                  done
+                fi
+
+                if virsh list --state-running | grep -q p4; then
+                  virsh shutdown p4_sev
+                  while virsh list --state-running | grep -q p4; do
+                    sleep 1
+                  done
+                fi
+EOF
+                '''
+            }
+        }
+        stage('[cloud-2] Stop OVS') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-ctl stop
+EOF
+                '
+                '''
+            }
+        }
+        stage('[cloud-2] Stop ivshmem-server'){
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp <<EOF
+                cd p4-ubpf_scripts/ovs
+                ./ivshmem-stop.sh
+EOF
+                '''
+            }
+        }
+    }
+}
+

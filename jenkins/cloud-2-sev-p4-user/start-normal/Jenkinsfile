@@ -1,0 +1,118 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('[cloud-2] Update scripts repository') {
+            steps{
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
+                cd p4-ubpf_scripts
+                sudo git pull
+EOF
+                '''
+            }
+        }
+        stage('[cloud-2] Run OVS') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-ctl stop || true
+                sleep 3
+                cd ~iwai/ovs-with-dpdk/ovs
+                make install
+                ovs-ctl start
+EOF
+                '
+                '''
+                sleep time: 5, unit: 'SECONDS'
+            }
+        }
+//         stage('[cloud-2] Turn off kernel data_path') {
+//             steps {
+//                 sh '''
+//                 ssh cloud-2.ksl.ci.kyutech.ac.jp '
+//                 sudo su <<EOF
+//                 iptables -A INPUT -i eno12399np0 -j DROP
+//                 iptables -A FORWARD -i eno12399np0 -j DROP
+// EOF
+//                 '
+//                 '''
+//             }
+//         }
+        stage('[cloud-2] Turn on Userspace TCP Segmentation Offload') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-vsctl set Open_vSwitch . other_config:userspace-tso-enable=true
+EOF
+                '
+                '''
+            }
+        }
+        stage('[cloud-2] Start User VM') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp <<EOF
+                if virsh domstate user_sev | grep -q running; then
+                    echo "User VM is already running."
+                else
+                    echo "Starting User VM..."
+                    virsh start user_sev
+                    for i in {1..30}; do
+                        if virsh domstate user_sev | grep -q running; then
+                            echo "User VM is now running."
+                            sleep 30
+                            break
+                        fi
+                        sleep 1
+                    done
+                    if ! virsh domstate user_sev | grep -q running; then
+                        echo "Error: User VM did not start within expected time."
+                        exit 1
+                    fi
+                fi
+EOF
+                '''
+            }
+        }
+        stage('[User] Test connection') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp <<'EOF'
+                while ! ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no cloud-2-vm1.ksl.ci.kyutech.ac.jp true 2>/dev/null; do
+                    :
+                done
+EOF
+                '''
+            }
+        }
+//         stage('[cloud-2] Set CPU Affinity') {
+//             steps {
+//                 sh '''
+//                 ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
+//                 sudo ./p4-ubpf_scripts/kvm/affinity.sh
+// EOF
+//                 '''
+//             }
+//         }
+        stage('[cloud-2] Set Priority') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
+                sudo ./p4-ubpf_scripts/kvm/priority.sh
+EOF
+                '''
+            }
+        }
+        stage('Check status') {
+            steps {
+                build job: 'P4Shield - cloud-2/check network'
+            }
+        }
+    }
+}
+
