@@ -38,7 +38,7 @@ EOF
                 '''
             }
         }
-        stage('[p4] Update ubpf repository') {
+        stage('[p4] Update scripts repository') {
             steps{
                 sh '''
                 ssh olive.ksl.ci.kyutech.ac.jp << 'EOF'
