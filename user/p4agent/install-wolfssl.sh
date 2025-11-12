@@ -1,4 +1,4 @@
-git clone https:/github.com/wolfssl/wolfssl
+git clone https:/github.com/wolfssl/wolfssl.git
 cd wolfssl
 git checkout v5.8.2-stable
 ./autogen.sh
