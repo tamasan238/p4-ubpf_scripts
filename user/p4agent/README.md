@@ -1,0 +1,3 @@
+- 通常のP4Agent: `make`
+- 暗号化P4Agent: `make -f Makefile.encrypt`
+  - 事前にwolfsslのインストールが必要． `./install-wolfssl.sh`
