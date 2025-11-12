@@ -38,29 +38,29 @@ EOF
                 '''
             }
         }
-        stage('[p4] Update scripts repository') {
+        stage('[p4] Update ubpf repository') {
             steps{
                 sh '''
-                ssh olive.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
+                ssh olive.ksl.ci.kyutech.ac.jp << 'EOF'
+                ssh -o StrictHostKeyChecking=no p4.local << 'InnerEOF'
                 cd p4-ubpf_scripts
                 sudo git pull
 InnerEOF
-                '
 EOF
+
                 '''
             }
         }
         stage('[p4] Update ubpf repository') {
             steps{
                 sh '''
-                ssh olive.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no p4.local ' << InnerEOF
+                ssh olive.ksl.ci.kyutech.ac.jp << 'EOF'
+                ssh -o StrictHostKeyChecking=no p4.local << 'InnerEOF'
                 cd ubpf
                 sudo git pull
 InnerEOF
-                '
 EOF
+
                 '''
             }
         }
