@@ -13,7 +13,7 @@ all: $(TARGETS)
 
 # 個別ビルドルール
 p4agent: p4agent.c
-	$(CC) $(CFLAGS) -o $@ p4agent.c
+	$(CC) $(CFLAGS) -o $@ p4agent.c -lwolfssl
 tester: tester.c
 	$(CC) $(CFLAGS) -o $@ tester.c
 
