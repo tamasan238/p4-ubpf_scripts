@@ -6,3 +6,4 @@ git checkout v5.8.2-stable
 make -j$(nproc)
 make test
 sudo make install
+sudo ldconfig
