@@ -1,0 +1,38 @@
+CC      := gcc
+CFLAGS  := -Wall -O2 -lwolfssl
+
+TARGETS := p4agent
+PREFIX  := /usr/local
+BINDIR  := $(PREFIX)/bin
+
+WOLFSSL_DIR=wolfssl
+WOLFSSL_VERSION=v5.8.2-stable
+
+all: wolfssl $(TARGETS)
+
+wolfssl:
+	if [ ! -d $(WOLFSSL_DIR) ]; then \
+		git clone https://github.com/wolfssl/wolfssl $(WOLFSSL_DIR); \
+	fi
+	cd $(WOLFSSL_DIR) && git fetch --all && git checkout $(WOLFSSL_VERSION)
+	cd $(WOLFSSL_DIR) && ./autogen.sh
+	cd $(WOLFSSL_DIR) && ./configure
+	cd $(WOLFSSL_DIR) && make -j$$(nproc)
+	cd $(WOLFSSL_DIR) && make test
+	cd $(WOLFSSL_DIR) && sudo make install
+
+p4agent: p4agent-enc.c
+	$(CC) $(CFLAGS) -o $@ p4agent-enc.c
+
+clean:
+	rm -f $(TARGETS) *.o
+	cd $(WOLFSSL_DIR) && make clean || true
+
+install: all
+	install -d $(DESTDIR)$(BINDIR)
+	install -m 755 p4agent $(DESTDIR)$(BINDIR)/
+
+uninstall:
+	rm -f $(DESTDIR)$(BINDIR)/p4agent
+
+.PHONY: all clean install uninstall wolfssl
