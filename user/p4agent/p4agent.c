@@ -8,12 +8,17 @@
 #include <limits.h>
 
 #define ENCRYPT
+#define MEASURE_ENC
 
 #ifdef ENCRYPT
 #include <stdint.h>
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/chacha20_poly1305.h>
 #include <wolfssl/wolfcrypt/random.h>
+#endif
+
+#ifdef MEASURE_ENC
+#include <time.h>
 #endif
 
 #define SHM_NAME "/dev/uio0"
@@ -40,6 +45,12 @@ void init_rng() {
 
 int encrypt_message(const unsigned char* plaintext, unsigned int len) {
     int ret = 0;
+
+#ifdef MEASURE_ENC
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
+
     wc_RNG_GenerateBlock(&rng, iv, sizeof(iv));
     ret =  wc_ChaCha20Poly1305_Encrypt(
         key,
@@ -51,6 +62,14 @@ int encrypt_message(const unsigned char* plaintext, unsigned int len) {
         ciphertext,
         authTag
     );
+#ifdef MEASURE_ENC
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    long seconds = end.tv_sec - start.tv_sec;
+    long nanoseconds = end.tv_nsec - start.tv_nsec;
+    long total_nanoseconds = seconds * 1000000000L + nanoseconds;
+    syslog(LOG_DEBUG, "暗号化所要時間: %ld[ns] (%ld)", nanoseconds, start.tv_nsec);
+#endif
+
     if(ret == 0){
         unsigned char* ptr = (unsigned char*)shm_ptr;
 
