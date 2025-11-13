@@ -4,12 +4,12 @@ pipeline {
     stages {
         stage('Terminate') {
             steps {
-                build job: 'P4Shield - olive/terminate'
+                build job: 'P4 Shield - olive/terminate'
             }
         }
         stage('Start') {
             steps {
-                build job: 'P4Shield - olive/start'
+                build job: 'P4 Shield - olive/start'
             }
         }
     }
