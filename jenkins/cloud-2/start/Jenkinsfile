@@ -59,31 +59,23 @@ EOF
             }
         }
         stage('[p4] Update scripts repository') {
-            steps{
+            steps {
                 sh '''
-                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no 192.168.122.125 ' << InnerEOF
-                cd p4-ubpf_scripts
-                sudo git pull
-InnerEOF
-                '
-EOF
+                ssh cloud-2.ksl.ci.kyutech.ac.jp "ssh -o StrictHostKeyChecking=no 192.168.122.125 \\
+                'cd p4-ubpf_scripts && sudo git pull'"
                 '''
             }
         }
+        
         stage('[p4] Update p4c repository') {
-            steps{
+            steps {
                 sh '''
-                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no 192.168.122.125 ' << InnerEOF
-                cd p4c
-                sudo git pull
-InnerEOF
-                '
-EOF
+                ssh cloud-2.ksl.ci.kyutech.ac.jp "ssh -o StrictHostKeyChecking=no 192.168.122.125 \\
+                'cd p4c && sudo git pull'"
                 '''
             }
         }
+        
         stage('[p4] Build P4 program') {
             steps{
                 sh '''
