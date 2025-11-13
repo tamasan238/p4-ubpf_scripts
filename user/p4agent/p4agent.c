@@ -8,7 +8,7 @@
 #include <limits.h>
 
 #define ENCRYPT
-#define MEASURE_ENC
+// #define MEASURE_ENC
 
 #ifdef ENCRYPT
 #include <stdint.h>
