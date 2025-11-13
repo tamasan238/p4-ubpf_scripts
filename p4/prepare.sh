@@ -10,7 +10,7 @@ export P4FILENAME=\$P4SAMPLE/ubpf
 alias p4-c='p4c-ubpf \$P4FILENAME.p4 -o \$P4FILENAME.c --emit-externs'
 
 # C -> uBPF Bytecode
-alias c-ubpf='clang -O2 -target bpf -c \$P4FILENAME\_ext.c -o \$P4FILENAME.o -I \$UBPFRUNTIME -include \$P4FILENAME\_ext.h -include \$P4FILENAME.c'
+alias c-ubpf='sudo clang -O2 -target bpf -c \$P4FILENAME\_ext.c -o \$P4FILENAME.o -I \$UBPFRUNTIME -include \$P4FILENAME\_ext.h -include \$P4FILENAME.c'
 
 # Run
 alias run-ubpf='\$UBPFBIN/ubpf_test \$P4FILENAME.o'

@@ -15,7 +15,7 @@ case "$1" in
     p4c-ubpf "$P4FILENAME.p4" -o "$P4FILENAME.c" --emit-externs
     ;;
   c-ubpf)
-    clang -O2 -target bpf -c "${P4FILENAME}_ext.c" -o "$P4FILENAME.o" \
+    sudo clang -O2 -target bpf -c "${P4FILENAME}_ext.c" -o "$P4FILENAME.o" \
       -I "$UBPFRUNTIME" \
       -include "${P4FILENAME}_ext.h" \
       -include "$P4FILENAME.c"

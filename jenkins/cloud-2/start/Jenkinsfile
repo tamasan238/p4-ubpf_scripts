@@ -81,8 +81,8 @@ EOF
 		        sh '''
 		        ssh -o StrictHostKeyChecking=no cloud-2.ksl.ci.kyutech.ac.jp "
 		            ssh -o StrictHostKeyChecking=no 192.168.122.125 '
-		                p4c-ubpf /home/iwai/p4c/testdata/p4_16_samples/ubpf.p4 -o /home/iwai/p4c/testdata/p4_16_samples/ubpf.c --emit-externs
-		                clang -O2 -target bpf -c /home/iwai/p4c/testdata/p4_16_samples/ubpf_ext.c -o /home/iwai/p4c/testdata/p4_16_samples/ubpf.o -I /home/iwai/p4c/backends/ubpf/runtime -include /home/iwai/p4c/testdata/p4_16_samples/ubpf_ext.h -include /home/iwai/p4c/testdata/p4_16_samples/ubpf.c
+		                sudo p4c-ubpf /home/iwai/p4c/testdata/p4_16_samples/ubpf.p4 -o /home/iwai/p4c/testdata/p4_16_samples/ubpf.c --emit-externs
+		                sudo clang -O2 -target bpf -c /home/iwai/p4c/testdata/p4_16_samples/ubpf_ext.c -o /home/iwai/p4c/testdata/p4_16_samples/ubpf.o -I /home/iwai/p4c/backends/ubpf/runtime -include /home/iwai/p4c/testdata/p4_16_samples/ubpf_ext.h -include /home/iwai/p4c/testdata/p4_16_samples/ubpf.c
 		            '
 		        "
 		        '''
