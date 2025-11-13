@@ -7,7 +7,7 @@
 #include <sys/mman.h>
 #include <limits.h>
 
-// #define ENCRYPT
+#define ENCRYPT
 // #define MEASURE_ENC
 
 #ifdef ENCRYPT
