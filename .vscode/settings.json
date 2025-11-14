@@ -2,6 +2,8 @@
     "cfs.configureWorkspace": "Never",
     "files.associations": {
         "*.dbclient-js": "javascript",
-        "mman.h": "c"
+        "mman.h": "c",
+        "chacha20_poly1305.h": "c",
+        "stdint.h": "c"
     }
 }

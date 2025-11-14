@@ -10,10 +10,18 @@
 #define ENCRYPT
 // #define MEASURE_ENC
 
+// #define USE_CHACHAPOLY
+#define USE_AES
+
 #ifdef ENCRYPT
 #include <stdint.h>
 #include <wolfssl/options.h>
+#ifdef USE_CHACHAPOLY
 #include <wolfssl/wolfcrypt/chacha20_poly1305.h>
+#endif
+#ifdef USE_AES
+#include <wolfssl/wolfcrypt/aes.h>
+#endif
 #include <wolfssl/wolfcrypt/random.h>
 #endif
 
@@ -29,6 +37,8 @@ void *shm_ptr;
 
 #ifdef ENCRYPT
 WC_RNG rng;
+unsigned char ciphertext[256];
+#ifdef USE_CHACHAPOLY
 unsigned char key[CHACHA20_POLY1305_AEAD_KEYSIZE] = {
     0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
     0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,
@@ -37,10 +47,29 @@ unsigned char key[CHACHA20_POLY1305_AEAD_KEYSIZE] = {
 };
 unsigned char iv[CHACHA20_POLY1305_AEAD_IV_SIZE];
 unsigned char authTag[CHACHA20_POLY1305_AEAD_AUTHTAG_SIZE];
-unsigned char ciphertext[256];
+#endif
+#ifdef USE_AES
+Aes aes;
+const unsigned char key[AES_256_KEY_SIZE] = {
+0x60,0x3d,0xeb,0x10,0x15,0xca,0x71,0xbe,
+0x2b,0x73,0xae,0xf0,0x85,0x7d,0x77,0x81,
+0x1f,0x35,0x2c,0x07,0x3b,0x61,0x08,0xd7,
+0x2d,0x98,0x10,0xa3,0x09,0x14,0xdf,0xf4
+};
 
-void init_rng() {
+unsigned char iv[12];
+unsigned char authTag[16];
+#endif
+
+void init_wolf() {
     wc_InitRng(&rng);
+#ifdef USE_AES
+    wc_AesGcmSetKey(
+        &aes,
+        key,
+        sizeof(key)
+    );
+#endif
 }
 
 int encrypt_message(const unsigned char* plaintext, unsigned int len) {
@@ -52,6 +81,7 @@ int encrypt_message(const unsigned char* plaintext, unsigned int len) {
 #endif
 
     wc_RNG_GenerateBlock(&rng, iv, sizeof(iv));
+#ifdef USE_CHACHAPOLY
     ret =  wc_ChaCha20Poly1305_Encrypt(
         key,
         iv,
@@ -62,6 +92,21 @@ int encrypt_message(const unsigned char* plaintext, unsigned int len) {
         ciphertext,
         authTag
     );
+#endif
+#ifdef USE_AES
+    ret = wc_AesGcmEncrypt(
+        &aes,
+        ciphertext,
+        plaintext,
+        len,
+        iv,
+        sizeof(iv), 
+        authTag,
+        sizeof(authTag),
+        NULL,
+        0
+    );
+#endif
 #ifdef MEASURE_ENC
     clock_gettime(CLOCK_MONOTONIC, &end);
     long seconds = end.tv_sec - start.tv_sec;
@@ -72,7 +117,6 @@ int encrypt_message(const unsigned char* plaintext, unsigned int len) {
 
     if(ret == 0){
         unsigned char* ptr = (unsigned char*)shm_ptr;
-
         memcpy(ptr, &len, sizeof(len));
         ptr += sizeof(len);
 
@@ -185,7 +229,7 @@ int main() {
     int ret = 0;
     
     shm_start();
-    init_rng();
+    init_wolf();
 
     pagesize = sysconf(_SC_PAGESIZE);
 
