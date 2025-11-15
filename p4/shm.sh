@@ -2,7 +2,7 @@ cd ~iwai/ivshmem-uio
 git pull
 make clean
 
-if sudo dmesg | grep -iq 'AMD Memory Encryption Features active: SEV'; then
+if sudo dmesg | grep -iq 'Memory Encryption Features active:'; then
     make -f Makefile.sev
 else
     make
