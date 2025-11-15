@@ -1,26 +1,26 @@
 pipeline {
     agent any
     stages {
-        stage('P4Shield - cloud-2') {
-            steps {
-                build job: 'P4Shield - cloud-2/start-normal'
-                sleep(time: 5, unit: 'SECONDS')
-                build job: 'P4Shield - cloud-2/measure'
-                sleep(time: 5, unit: 'SECONDS')
-                build job: 'P4Shield - cloud-2/terminate'
-                sleep(time: 5, unit: 'SECONDS')
-            }
-        }
-        stage('P4Shield - cloud-2-sev-user') {
-            steps {
-                build job: 'P4Shield - cloud-2-sev-user/start-normal'
-                sleep(time: 5, unit: 'SECONDS')
-                build job: 'P4Shield - cloud-2-sev-user/measure'
-                sleep(time: 5, unit: 'SECONDS')
-                build job: 'P4Shield - cloud-2-sev-user/terminate'
-                sleep(time: 5, unit: 'SECONDS')
-            }
-        }
+        // stage('P4Shield - cloud-2') {
+        //     steps {
+        //         build job: 'P4Shield - cloud-2/start-normal'
+        //         sleep(time: 5, unit: 'SECONDS')
+        //         build job: 'P4Shield - cloud-2/measure'
+        //         sleep(time: 5, unit: 'SECONDS')
+        //         build job: 'P4Shield - cloud-2/terminate'
+        //         sleep(time: 5, unit: 'SECONDS')
+        //     }
+        // }
+        // stage('P4Shield - cloud-2-sev-user') {
+        //     steps {
+        //         build job: 'P4Shield - cloud-2-sev-user/start-normal'
+        //         sleep(time: 5, unit: 'SECONDS')
+        //         build job: 'P4Shield - cloud-2-sev-user/measure'
+        //         sleep(time: 5, unit: 'SECONDS')
+        //         build job: 'P4Shield - cloud-2-sev-user/terminate'
+        //         sleep(time: 5, unit: 'SECONDS')
+        //     }
+        // }
         stage('P4Shield - cloud-2-sev-p4-user') {
             steps {
                 build job: 'P4Shield - cloud-2-sev-p4-user/build'
