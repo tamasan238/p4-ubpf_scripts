@@ -7,11 +7,11 @@
 #include <sys/mman.h>
 #include <limits.h>
 
-#define ENCRYPT
+// #define ENCRYPT
 // #define MEASURE_ENC
 
 // #define USE_CHACHAPOLY
-#define USE_AES
+// #define USE_AES
 
 #ifdef ENCRYPT
 #include <stdint.h>
