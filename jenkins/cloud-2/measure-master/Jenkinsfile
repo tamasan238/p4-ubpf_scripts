@@ -21,26 +21,26 @@ pipeline {
         //         sleep(time: 5, unit: 'SECONDS')
         //     }
         // }
-        stage('P4Shield - cloud-2-sev-p4-user') {
-            steps {
-                build job: 'P4Shield - cloud-2-sev-p4-user/build'
-                sleep(time: 5, unit: 'SECONDS')
-                build job: 'P4Shield - cloud-2-sev-p4-user/measure'
-                sleep(time: 5, unit: 'SECONDS')
-                build job: 'P4Shield - cloud-2-sev-p4-user/terminate'
-                sleep(time: 5, unit: 'SECONDS')
-            }
-        }
-        stage('P4Shield - cloud-2-sev-p4') {
-            steps {
-                build job: 'P4Shield - cloud-2-sev-p4/build'
-                sleep(time: 5, unit: 'SECONDS')
-                build job: 'P4Shield - cloud-2-sev-p4/measure'
-                sleep(time: 5, unit: 'SECONDS')
-                build job: 'P4Shield - cloud-2-sev-p4/terminate'
-                sleep(time: 5, unit: 'SECONDS')
-            }
-        }
+        // stage('P4Shield - cloud-2-sev-p4-user') {
+        //     steps {
+        //         build job: 'P4Shield - cloud-2-sev-p4-user/build'
+        //         sleep(time: 5, unit: 'SECONDS')
+        //         build job: 'P4Shield - cloud-2-sev-p4-user/measure'
+        //         sleep(time: 5, unit: 'SECONDS')
+        //         build job: 'P4Shield - cloud-2-sev-p4-user/terminate'
+        //         sleep(time: 5, unit: 'SECONDS')
+        //     }
+        // }
+        // stage('P4Shield - cloud-2-sev-p4') {
+        //     steps {
+        //         build job: 'P4Shield - cloud-2-sev-p4/build'
+        //         sleep(time: 5, unit: 'SECONDS')
+        //         build job: 'P4Shield - cloud-2-sev-p4/measure'
+        //         sleep(time: 5, unit: 'SECONDS')
+        //         build job: 'P4Shield - cloud-2-sev-p4/terminate'
+        //         sleep(time: 5, unit: 'SECONDS')
+        //     }
+        // }
         stage('P4Shield - cloud-2-sev-user build') {
             steps {
                 build job: 'P4Shield - cloud-2-sev-user/build'
