@@ -1,4 +1,5 @@
 cd ~iwai/ivshmem-uio
+git pull
 make clean
 make
 modprobe uio

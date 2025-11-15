@@ -4,12 +4,12 @@ pipeline {
     stages {
         stage('Terminate') {
             steps {
-                build job: 'P4Shield - cloud-2-sev-p4-user/terminate'
+                build job: 'P4Shield - cloud-2-sev-user/terminate'
             }
         }
         stage('Start') {
             steps {
-                build job: 'P4Shield - cloud-2-sev-p4-user/start'
+                build job: 'P4Shield - cloud-2-sev-user/start'
             }
         }
     }

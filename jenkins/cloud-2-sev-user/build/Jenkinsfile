@@ -142,7 +142,7 @@ EOF
         }
         stage('Start P4 Shield') {
             steps {
-                build job: 'P4Shield - cloud-2-sev-p4-user/start'
+                build job: 'P4Shield - cloud-2-sev-user/start'
             }
         }
     }
