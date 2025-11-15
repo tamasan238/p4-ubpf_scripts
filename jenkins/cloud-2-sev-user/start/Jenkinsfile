@@ -1,0 +1,265 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('[cloud-2] Update scripts repository') {
+            steps{
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
+                cd p4-ubpf_scripts
+                sudo git pull
+EOF
+                '''
+            }
+        }
+        stage('[cloud-2] Start ivshmem-server') {
+            steps{
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
+                ./p4-ubpf_scripts/ovs/ivshmem-start.sh
+EOF
+                '''
+            }
+        }
+        stage('[cloud-2] Start P4 VM') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp <<EOF
+                if virsh domstate p4 | grep -q running; then
+                    echo "P4 VM is already running."
+                else
+                    echo "Starting P4 VM..."
+                    virsh start p4
+                    for i in {1..30}; do
+                        if virsh domstate p4 | grep -q running; then
+                            echo "P4 VM is now running."
+                            sleep 5
+                            break
+                        fi
+                        sleep 1
+                    done
+                    if ! virsh domstate p4 | grep -q running; then
+                        echo "Error: P4 VM did not start within expected time."
+                        exit 1
+                    fi
+                fi
+EOF
+                '''
+            }
+        }
+        stage('[p4] Test connection') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp <<'EOF'
+                while ! ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no 192.168.122.125 true 2>/dev/null; do
+                    :
+                done
+EOF
+                '''
+            }
+        }
+        stage('[p4] Update scripts repository') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp "ssh -o StrictHostKeyChecking=no 192.168.122.125 \\
+                'cd p4-ubpf_scripts && sudo git pull'"
+                '''
+            }
+        }
+        
+        stage('[p4] Update p4c repository') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp "ssh -o StrictHostKeyChecking=no 192.168.122.125 \\
+                'cd p4c && sudo git pull'"
+                '''
+            }
+        }
+        
+        stage('[p4] Build P4 program') {
+            steps {
+		        sh '''
+		        ssh -o StrictHostKeyChecking=no cloud-2.ksl.ci.kyutech.ac.jp "
+		            ssh -o StrictHostKeyChecking=no 192.168.122.125 '
+		                sudo p4c-ubpf /home/iwai/p4c/testdata/p4_16_samples/ubpf.p4 -o /home/iwai/p4c/testdata/p4_16_samples/ubpf.c --emit-externs
+		                sudo clang -O2 -target bpf -c /home/iwai/p4c/testdata/p4_16_samples/ubpf_ext.c -o /home/iwai/p4c/testdata/p4_16_samples/ubpf.o -I /home/iwai/p4c/backends/ubpf/runtime -include /home/iwai/p4c/testdata/p4_16_samples/ubpf_ext.h -include /home/iwai/p4c/testdata/p4_16_samples/ubpf.c
+		            '
+		        "
+		        '''
+		    }
+        }
+        stage('[p4] Prepare ivshmem'){
+            steps{
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 '
+                sudo su << InnerEOF
+                cd p4-ubpf_scripts/p4
+                ./shm.sh || true
+InnerEOF
+                '
+EOF
+                '''
+            }
+        }
+        stage('[p4] Run uBPF Runtime'){
+            steps{
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 '
+                sudo ./p4-ubpf_scripts/p4/p4launcher/p4l_server
+                '
+EOF
+                '''
+            }
+        }
+        stage('[cloud-2] Run OVS') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-ctl stop || true
+                sleep 3
+                cd ~iwai/ovs
+                make install
+                ovs-ctl start
+EOF
+                '
+                '''
+                sleep time: 5, unit: 'SECONDS'
+            }
+        }
+//         stage('[cloud-2] Turn off kernel data_path') {
+//             steps {
+//                 sh '''
+//                 ssh cloud-2.ksl.ci.kyutech.ac.jp '
+//                 sudo su <<EOF
+//                 iptables -A INPUT -i eno12399np0 -j DROP
+//                 iptables -A FORWARD -i eno12399np0 -j DROP
+// EOF
+//                 '
+//                 '''
+//             }
+//         }
+        stage('[cloud-2] Turn on Userspace TCP Segmentation Offload') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp '
+                sudo su <<EOF
+                export PATH=$PATH:/usr/local/share/openvswitch/scripts/
+                ovs-vsctl set Open_vSwitch . other_config:userspace-tso-enable=true
+EOF
+                '
+                '''
+            }
+        }
+        stage('[cloud-2] Start User VM') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp <<EOF
+                if virsh domstate user_sev | grep -q running; then
+                    echo "User VM is already running."
+                else
+                    echo "Starting User VM..."
+                    virsh start user_sev
+                    for i in {1..30}; do
+                        if virsh domstate user_sev | grep -q running; then
+                            echo "User VM is now running."
+                            sleep 30
+                            break
+                        fi
+                        sleep 1
+                    done
+                    if ! virsh domstate user_sev | grep -q running; then
+                        echo "Error: User VM did not start within expected time."
+                        exit 1
+                    fi
+                fi
+EOF
+                '''
+            }
+        }
+        stage('[User] Test connection') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp <<'EOF'
+                while ! ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no cloud-2-vm1.ksl.ci.kyutech.ac.jp true 2>/dev/null; do
+                    :
+                done
+EOF
+                '''
+            }
+        }
+        stage('[User] Prepare ivshmem'){
+            steps{
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no cloud-2-vm1.ksl.ci.kyutech.ac.jp '
+                sudo su << InnerEOF
+                cd p4-ubpf_scripts
+                git pull
+                cd user
+                ./shm.sh || true
+InnerEOF
+                '
+EOF
+                '''
+            }
+        }
+        stage('[User] Build & Start P4Agent'){
+            steps{
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
+                ssh -o StrictHostKeyChecking=no cloud-2-vm1.ksl.ci.kyutech.ac.jp '
+                sudo su << InnerEOF
+                cd p4-ubpf_scripts
+                git pull
+                cd user/p4agent
+                make
+                make install
+                ./p4agent
+InnerEOF
+                '
+EOF
+                '''
+            }
+        }
+//         stage('[cloud-2] Set CPU Affinity') {
+//             steps {
+//                 sh '''
+//                 ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
+//                 sudo ./p4-ubpf_scripts/kvm/affinity.sh
+// EOF
+//                 '''
+//             }
+//         }
+        stage('[cloud-2] Set Priority') {
+            steps {
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
+                sudo ./p4-ubpf_scripts/kvm/priority.sh
+EOF
+                '''
+            }
+        }
+        stage('[p4] Set Priority') {
+            steps{
+                sleep time: 5, unit: 'SECONDS'
+                sh '''
+                ssh cloud-2.ksl.ci.kyutech.ac.jp <<'EOF'
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 <<'InnerEOF'
+                sudo ./p4-ubpf_scripts/p4/priority.sh
+InnerEOF
+EOF
+                '''
+            }
+        }
+        stage('Check status') {
+            steps {
+                build job: 'P4Shield - cloud-2-sev-p4-user/check network'
+            }
+        }
+    }
+}
+

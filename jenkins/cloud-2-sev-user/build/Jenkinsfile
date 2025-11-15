@@ -2,20 +2,20 @@ pipeline {
     agent any
 
     stages {
-        stage('[sub9] Update scripts repository') {
+        stage('[cloud-2] Update scripts repository') {
             steps{
                 sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
                 cd p4-ubpf_scripts
                 sudo git pull
 EOF
                 '''
             }
         }
-        stage('[sub9] Start P4 VM') {
+        stage('[cloud-2] Start P4 VM') {
             steps {
                 sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp <<EOF
+                ssh cloud-2.ksl.ci.kyutech.ac.jp <<EOF
                 if virsh domstate p4 | grep -q running; then
                     echo "P4 VM is already running."
                 else
@@ -41,7 +41,7 @@ EOF
         stage('[p4] Test connection') {
             steps {
                 sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp <<'EOF'
+                ssh cloud-2.ksl.ci.kyutech.ac.jp <<'EOF'
                 while ! ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no 192.168.122.125 true 2>/dev/null; do
                     :
                 done
@@ -52,7 +52,7 @@ EOF
         stage('[p4] Update scripts repository') {
             steps{
                 sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp << 'EOF'
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << 'EOF'
                 ssh -o StrictHostKeyChecking=no 192.168.122.125 << 'InnerEOF'
                 cd p4-ubpf_scripts
                 sudo git pull
@@ -65,7 +65,7 @@ EOF
         stage('[p4] Build P4Launcher') {
             steps{
                 sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
                 ssh -o StrictHostKeyChecking=no 192.168.122.125 '
                 sudo su << InnerEOF
                 cd p4-ubpf_scripts/p4/p4launcher
@@ -81,20 +81,20 @@ EOF
         stage('[p4] Update ubpf repository') {
             steps{
                 sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
-                ssh -o StrictHostKeyChecking=no 192.168.122.125 ' << InnerEOF
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << 'EOF'
+                ssh -o StrictHostKeyChecking=no 192.168.122.125 << 'InnerEOF'
                 cd ubpf
                 sudo git pull
 InnerEOF
-                '
 EOF
+
                 '''
             }
         }
         stage('[p4] Build P4 & uBPF Runtime') {
             steps{
                 sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
                 ssh -o StrictHostKeyChecking=no 192.168.122.125 '
                 sudo su << InnerEOF
                 cd ubpf
@@ -105,20 +105,20 @@ EOF
                 '''
             }
         }
-        stage('[sub9] Update OVS repository') {
+        stage('[cloud-2] Update OVS repository') {
             steps{
                 sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp << EOF
+                ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
                 cd ovs
                 sudo git pull
 EOF
                 '''
             }
         }
-        stage('[sub9] Build OVS') {
+        stage('[cloud-2] Build OVS') {
             steps {
                 sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp '
+                ssh cloud-2.ksl.ci.kyutech.ac.jp '
                 sudo su <<EOF
                 cd ovs
                 make clean
@@ -130,10 +130,10 @@ EOF
                 '''
             }
         }
-        stage('[sub9] Shutdown P4 VM') {
+        stage('[cloud-2] Shutdown P4 VM') {
             steps {
                 sh '''
-                ssh sub9.ksl.ci.kyutech.ac.jp <<EOF
+                ssh cloud-2.ksl.ci.kyutech.ac.jp <<EOF
                 virsh shutdown p4
 EOF
                 '''
@@ -142,7 +142,7 @@ EOF
         }
         stage('Start P4 Shield') {
             steps {
-                build job: 'P4Shield - sub9/start'
+                build job: 'P4Shield - cloud-2-sev-p4-user/start'
             }
         }
     }

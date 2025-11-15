@@ -1,0 +1,14 @@
+pipeline {
+    agent any
+    stages {
+        stage('loop') {
+            steps {
+                script {
+                    for(i in [1,2,3,4,5]) {
+                        build job: 'P4Shield - cloud-2-sev-p4-user/measure'
+                    }
+                }
+            }
+        }
+    }
+}

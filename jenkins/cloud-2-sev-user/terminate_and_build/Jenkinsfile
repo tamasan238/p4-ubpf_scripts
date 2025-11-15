@@ -1,0 +1,17 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Terminate') {
+            steps {
+                build job: 'P4Shield - cloud-2-sev-p4-user/terminate'
+            }
+        }
+        stage('Build & Start') {
+            steps {
+                build job: 'P4Shield - cloud-2-sev-p4-user/build'
+            }
+        }
+    }
+}
+

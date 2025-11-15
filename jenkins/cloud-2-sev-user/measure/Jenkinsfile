@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('[peach] Update scripts'){
+            steps{
+                sh '''
+                ssh peach.ksl.ci.kyutech.ac.jp << EOF
+
+                cd p4-ubpf_scripts
+                git pull
+EOF
+                '''
+            }
+        }
+        stage('[User] Measure'){
+            steps{
+                sh '''
+                ssh peach.ksl.ci.kyutech.ac.jp << EOF
+
+                cd p4-ubpf_scripts/measure/
+                bash measure.sh cloud-2-vm1.ksl.ci.kyutech.ac.jp
+EOF
+                '''
+            }
+        }
+    }
+}
+
