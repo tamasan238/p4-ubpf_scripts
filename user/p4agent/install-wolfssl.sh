@@ -7,3 +7,4 @@ make -j$(nproc)
 make test
 sudo make install
 sudo ldconfig
+./wolfcrypt/benchmark/benchmark
