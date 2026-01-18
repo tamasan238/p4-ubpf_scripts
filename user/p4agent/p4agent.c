@@ -326,7 +326,8 @@ void check_p4_execution() {
 
     get_nic_stat(false);
 
-    double diff = ((double)(executions - passed_packets) / (double)passed_packets) * 100.0;
+    double diff = ((double)executions - (double)passed_packets) /
+           (double)passed_packets * 100.0;
 
     syslog(LOG_WARNING, "diff: %.2f %%, P4 executed: %llu, packet proccessed: %llu", 
         diff, executions, passed_packets);
