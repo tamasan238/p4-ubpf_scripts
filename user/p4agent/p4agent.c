@@ -254,27 +254,39 @@ void get_nic_stat(bool is_init){
     FILE *fp;
     char header[1024];
     char values[1024];
+    char *h[64];
+    char *v[64];
+    int hc = 0;
+    int vc = 0;
     unsigned long long in_receives = 0;
     unsigned long long out_requests = 0;
 
     fp = fopen("/proc/net/snmp", "r");
     if (!fp)
-        exit(1);
+        return 1;
 
     while (fgets(header, sizeof(header), fp)) {
         if (strncmp(header, "Ip:", 3) == 0) {
             if (!fgets(values, sizeof(values), fp))
                 break;
 
-            char *h = strtok(header, " \n");
-            char *v = strtok(values, " \n");
+            char *p = strtok(header, " \n");
+            while (p && hc < 64) {
+                h[hc++] = p;
+                p = strtok(NULL, " \n");
+            }
 
-            while ((h = strtok(NULL, " \n")) &&
-                   (v = strtok(NULL, " \n"))) {
-                if (strcmp(h, "InReceives") == 0)
-                    in_receives = strtoull(v, NULL, 10);
-                else if (strcmp(h, "OutRequests") == 0)
-                    out_requests = strtoull(v, NULL, 10);
+            p = strtok(values, " \n");
+            while (p && vc < 64) {
+                v[vc++] = p;
+                p = strtok(NULL, " \n");
+            }
+
+            for (int i = 0; i < hc && i < vc; i++) {
+                if (strcmp(h[i], "InReceives") == 0)
+                    in_receives = strtoull(v[i], NULL, 10);
+                else if (strcmp(h[i], "OutRequests") == 0)
+                    out_requests = strtoull(v[i], NULL, 10);
             }
             break;
         }
