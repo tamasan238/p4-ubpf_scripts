@@ -32,8 +32,40 @@
 #define SHM_NAME "/dev/uio0"
 #define SHM_SIZE (8 * 1024 * 1024) // 8MB
 
+#define VM_AREA 0                                  // 
+#define META_AREA (VM_AREA + 2 * 1024 * 1024)      // Start at 2MB
+#define PACKETS_AREA (META_AREA + 2 * 1024 * 1024) // Start at 4MB
+
 int fd;
 void *shm_ptr;
+
+/* META_AREA */
+typedef struct
+{
+    long long ovs_thread_id;
+    int p4runtime_id;
+    long long packet_count;
+} Connection;
+
+#define MAX_CONNECTIONS 32
+// #define MAX_CONNECTIONS 8
+#define SHM_SESSION_TABLE META_AREA
+#define SHM_TABLE_IS_LOCKED (SHM_SESSION_TABLE + sizeof(Connection) * MAX_CONNECTIONS)
+
+Connection *session;
+/* end */
+
+/* PACKETS_AREA */
+#define SHM_SIZE_DP_PACKET_2 64
+#define SHM_SIZE_PACKET 64
+#define SHM_SIZE_RESULT 32
+#define SHM_SIZE_FLAGS 32
+#define SHM_SIZE_PER_PACKET (SHM_SIZE_DP_PACKET_2 + SHM_SIZE_PACKET + SHM_SIZE_RESULT + SHM_SIZE_FLAGS)
+
+#define SHM_FLAG_PACKETS (PACKETS_AREA + SHM_SIZE_PER_PACKET - SHM_SIZE_FLAGS)
+#define SHM_FLAG_RESULTS (SHM_FLAG_PACKETS + 1)
+#define SHM_FLAG_HOW_MANY_PACKETS (SHM_FLAG_PACKETS + 2) // use only first packet in batch
+/* end */
 
 #ifdef ENCRYPT
 WC_RNG rng;
@@ -211,11 +243,25 @@ void shm_start() {
     }
 
     syslog(LOG_WARNING, "SHM opened. mapped to %p", shm_ptr);
+
+    session = (Connection *)(shm_ptr + SHM_SESSION_TABLE);
 }
 
 void shm_end() {
     munmap(shm_ptr, SHM_SIZE);
     close(fd);
+}
+
+void check_p4_execution() {
+    // TODO: implement
+    int i;
+    unsigned long long executions = 0;
+
+    for(i=0; i<MAX_CONNECTIONS; i++){
+        executions += session[i].packet_count;
+    }
+
+    syslog(LOG_WARNING, "P4 executed: %lu", executions);
 }
 
 #ifdef ENCRYPT
@@ -254,6 +300,8 @@ int main() {
             syslog(LOG_WARNING, "encryption failed. err: %d", ret);
         }
         
+        check_p4_execution();
+
         sleep(3); // sleep for 3 sec
     }
     
