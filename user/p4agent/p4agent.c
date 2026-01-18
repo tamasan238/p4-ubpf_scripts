@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <limits.h>
+#include <sys/sysctl.h>
 
 #define ENCRYPT
 // #define MEASURE_ENC
@@ -53,6 +54,8 @@ typedef struct
 #define SHM_TABLE_IS_LOCKED (SHM_SESSION_TABLE + sizeof(Connection) * MAX_CONNECTIONS)
 
 Connection *session;
+unsigned long long passed_packets_tx_offset, passed_packets_rx_offset,
+    passed_packets, passed_packets_rx, passed_packets_tx;
 /* end */
 
 /* PACKETS_AREA */
@@ -247,6 +250,39 @@ void shm_start() {
     session = (Connection *)(shm_ptr + SHM_SESSION_TABLE);
 }
 
+void get_nic_stat(bool is_init){
+    int mib[4];
+    size_t len;
+    unsigned long long data[32];
+    unsigned long long in_receives = 0;
+    unsigned long long out_requests = 0;
+
+    mib[0] = CTL_NET;
+    mib[1] = PF_INET;
+    mib[2] = IPPROTO_IP;
+    mib[3] = IP_STATS;
+
+    len = sizeof(data);
+    if (sysctl(mib, 4, data, &len, NULL, 0) != 0)
+        return 1;
+
+    if(is_init){
+        passed_packets_rx_offset = data[IPSTATS_MIB_INRECEIVES];
+        passed_packets_tx_offset = data[IPSTATS_MIB_OUTREQUESTS];
+    } else {
+        passed_packets_rx = passed_packets_rx_offset - data[IPSTATS_MIB_INRECEIVES];
+        passed_packets_tx = passed_packets_tx_offset - data[IPSTATS_MIB_OUTREQUESTS];
+        passed_packets = passed_packets_rx + passed_packets_tx;
+    }
+}
+
+void init_nic_stat(){
+    get_nic_stat(true);
+
+    syslog(LOG_WARNING, "offset_rx: %llu, offset_tx: %llu", 
+        passed_packets_rx_offset, passed_packets_tx_offset);
+}
+
 void shm_end() {
     munmap(shm_ptr, SHM_SIZE);
     close(fd);
@@ -261,7 +297,12 @@ void check_p4_execution() {
         executions += session[i].packet_count;
     }
 
-    syslog(LOG_WARNING, "P4 executed: %llu", executions);
+    get_nic_stat(false);
+
+    double diff = ((double)(executions - passed_packets) / (double)passed_packets) * 100.0;
+
+    syslog(LOG_WARNING, "diff: %.2f %%, P4 executed: %llu, packet proccessed: %llu", 
+        executions, passed_packets);
 }
 
 #ifdef ENCRYPT
@@ -276,6 +317,7 @@ int main() {
     
     shm_start();
     init_wolf();
+    init_nic_stat();
 
     pagesize = sysconf(_SC_PAGESIZE);
 

@@ -198,7 +198,7 @@ EOF
                 ssh -o StrictHostKeyChecking=no cloud-2-vm1.ksl.ci.kyutech.ac.jp '
                 sudo su << InnerEOF
                 cd p4-ubpf_scripts
-                git pull
+                sudo git pull
                 cd user
                 ./shm.sh || true
 InnerEOF
@@ -214,7 +214,7 @@ EOF
                 ssh -o StrictHostKeyChecking=no cloud-2-vm1.ksl.ci.kyutech.ac.jp '
                 sudo su << InnerEOF
                 cd p4-ubpf_scripts
-                git pull
+                sudo git pull
                 cd user/p4agent
                 make
                 make install
