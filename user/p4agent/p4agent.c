@@ -56,6 +56,8 @@ typedef struct
 Connection *session;
 unsigned long long passed_packets_tx_offset, passed_packets_rx_offset,
     passed_packets, passed_packets_rx, passed_packets_tx;
+
+unsigned long long count_from_wakeup = 0;
 /* end */
 
 /* PACKETS_AREA */
@@ -302,6 +304,9 @@ void get_nic_stat(bool is_init){
         passed_packets_tx = out_requests - passed_packets_tx_offset;
         // passed_packets = passed_packets_rx + passed_packets_tx;
         passed_packets = passed_packets_rx;
+
+        passed_packets_rx_offset = passed_packets_rx;
+        passed_packets_tx_offset = passed_packets_tx;
     }
 }
 
@@ -318,6 +323,9 @@ void shm_end() {
 }
 
 void check_p4_execution() {
+    if(count_from_wakeup < 20) // wait for stabilize (20 * 3sec = 1min)
+        return;
+
     int i;
     unsigned long long executions = 0;
 
@@ -373,6 +381,7 @@ int main() {
         
         check_p4_execution();
 
+        count_from_wakeup++;
         sleep(3); // sleep for 3 sec
     }
     
