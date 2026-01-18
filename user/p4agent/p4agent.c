@@ -263,7 +263,7 @@ void get_nic_stat(bool is_init){
 
     fp = fopen("/proc/net/snmp", "r");
     if (!fp)
-        return 1;
+        exit(1);
 
     while (fgets(header, sizeof(header), fp)) {
         if (strncmp(header, "Ip:", 3) == 0) {
