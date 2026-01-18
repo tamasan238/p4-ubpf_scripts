@@ -261,7 +261,7 @@ void check_p4_execution() {
         executions += session[i].packet_count;
     }
 
-    syslog(LOG_WARNING, "P4 executed: %lu", executions);
+    syslog(LOG_WARNING, "P4 executed: %llu", executions);
 }
 
 #ifdef ENCRYPT
