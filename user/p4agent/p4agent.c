@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <limits.h>
-#include <sys/sysctl.h>
+#include <stdbool.h>
 
 #define ENCRYPT
 // #define MEASURE_ENC
@@ -251,27 +251,43 @@ void shm_start() {
 }
 
 void get_nic_stat(bool is_init){
-    int mib[4];
-    size_t len;
-    unsigned long long data[32];
+    FILE *fp;
+    char header[1024];
+    char values[1024];
     unsigned long long in_receives = 0;
     unsigned long long out_requests = 0;
 
-    mib[0] = CTL_NET;
-    mib[1] = PF_INET;
-    mib[2] = IPPROTO_IP;
-    mib[3] = IP_STATS;
+    fp = fopen("/proc/net/snmp", "r");
+    if (!fp)
+        exit(1);
 
-    len = sizeof(data);
-    if (sysctl(mib, 4, data, &len, NULL, 0) != 0)
-        return 1;
+    while (fgets(header, sizeof(header), fp)) {
+        if (strncmp(header, "Ip:", 3) == 0) {
+            if (!fgets(values, sizeof(values), fp))
+                break;
+
+            char *h = strtok(header, " \n");
+            char *v = strtok(values, " \n");
+
+            while ((h = strtok(NULL, " \n")) &&
+                   (v = strtok(NULL, " \n"))) {
+                if (strcmp(h, "InReceives") == 0)
+                    in_receives = strtoull(v, NULL, 10);
+                else if (strcmp(h, "OutRequests") == 0)
+                    out_requests = strtoull(v, NULL, 10);
+            }
+            break;
+        }
+    }
+
+    fclose(fp);
 
     if(is_init){
-        passed_packets_rx_offset = data[IPSTATS_MIB_INRECEIVES];
-        passed_packets_tx_offset = data[IPSTATS_MIB_OUTREQUESTS];
+        passed_packets_rx_offset = in_receives;
+        passed_packets_tx_offset = out_requests;
     } else {
-        passed_packets_rx = data[IPSTATS_MIB_INRECEIVES] - passed_packets_rx_offset;
-        passed_packets_tx = data[IPSTATS_MIB_OUTREQUESTS] - passed_packets_tx_offset;
+        passed_packets_rx = in_receives - passed_packets_rx_offset;
+        passed_packets_tx = out_requests - passed_packets_tx_offset;
         passed_packets = passed_packets_rx + passed_packets_tx;
     }
 }
@@ -289,7 +305,6 @@ void shm_end() {
 }
 
 void check_p4_execution() {
-    // TODO: implement
     int i;
     unsigned long long executions = 0;
 
@@ -302,7 +317,7 @@ void check_p4_execution() {
     double diff = ((double)(executions - passed_packets) / (double)passed_packets) * 100.0;
 
     syslog(LOG_WARNING, "diff: %.2f %%, P4 executed: %llu, packet proccessed: %llu", 
-        executions, passed_packets);
+        diff, executions, passed_packets);
 }
 
 #ifdef ENCRYPT
