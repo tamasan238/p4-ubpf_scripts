@@ -270,8 +270,8 @@ void get_nic_stat(bool is_init){
         passed_packets_rx_offset = data[IPSTATS_MIB_INRECEIVES];
         passed_packets_tx_offset = data[IPSTATS_MIB_OUTREQUESTS];
     } else {
-        passed_packets_rx = passed_packets_rx_offset - data[IPSTATS_MIB_INRECEIVES];
-        passed_packets_tx = passed_packets_tx_offset - data[IPSTATS_MIB_OUTREQUESTS];
+        passed_packets_rx = data[IPSTATS_MIB_INRECEIVES] - passed_packets_rx_offset;
+        passed_packets_tx = data[IPSTATS_MIB_OUTREQUESTS] - passed_packets_tx_offset;
         passed_packets = passed_packets_rx + passed_packets_tx;
     }
 }
