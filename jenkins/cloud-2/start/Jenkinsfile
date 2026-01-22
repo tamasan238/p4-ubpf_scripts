@@ -213,8 +213,7 @@ EOF
                 ssh cloud-2.ksl.ci.kyutech.ac.jp << EOF
                 ssh -o StrictHostKeyChecking=no cloud-2-vm1.ksl.ci.kyutech.ac.jp '
                 sudo su << InnerEOF
-                cd p4-ubpf_scripts
-                sudo git pull
+                cd p4-ubpf_scripts && sudo git pull
                 cd user/p4agent
                 make
                 make install
