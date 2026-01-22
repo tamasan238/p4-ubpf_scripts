@@ -335,11 +335,21 @@ void check_p4_execution() {
 
     get_nic_stat(false);
 
+    executions%=10000;
+    passed_packets%=10000;
+
     double diff = ((double)executions - (double)passed_packets) /
            (double)passed_packets * 100.0;
 
     syslog(LOG_WARNING, "diff: %.2f %%, P4 executed: %llu, packet proccessed: %llu", 
         diff, executions, passed_packets);
+
+    if(diff > 10){
+        syslog(LOG_WARNING, "INFO: increasing packet drop");
+    }else if(diff < 10){
+        syslog(LOG_WARNING, "WARN: P4 processing may be bypassed by switch");
+        system("echo \"WARN: P4 processing may be bypassed by the vSwitch\" | wall");
+    }
 }
 
 #ifdef ENCRYPT
