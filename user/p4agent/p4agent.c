@@ -335,9 +335,6 @@ void check_p4_execution() {
 
     get_nic_stat(false);
 
-    executions%=10000;
-    passed_packets%=10000;
-
     double diff = ((double)executions - (double)passed_packets) /
            (double)passed_packets * 100.0;
 
