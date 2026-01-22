@@ -343,7 +343,7 @@ void check_p4_execution() {
 
     if(diff > 10){
         syslog(LOG_WARNING, "INFO: increasing packet drop");
-    }else if(diff < -10){
+    }else if(diff < 0){
         syslog(LOG_WARNING, "WARN: P4 processing may be bypassed by switch");
         system("echo \"WARN: P4 processing may be bypassed by the vSwitch\" | wall");
     }
