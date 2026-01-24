@@ -328,25 +328,56 @@ void check_p4_execution() {
 
     int i;
     unsigned long long executions = 0;
+    static double prev;
+    static int initialized = 0;
+    static int drop_count = 0;
 
+    // 1. sum all p4 executions
     for(i=0; i<MAX_CONNECTIONS; i++){
         executions += session[i].packet_count;
     }
 
+    // 2. get nic stat
     get_nic_stat(false);
 
+    // 3. calc diff
     double diff = ((double)executions - (double)passed_packets) /
            (double)passed_packets * 100.0;
 
     syslog(LOG_WARNING, "diff: %.2f %%, P4 executed: %llu, packet proccessed: %llu", 
         diff, executions, passed_packets);
-
-    if(diff > 10){
+        
+    if (diff > 10) {
         syslog(LOG_WARNING, "INFO: increasing packet drop");
-    }else if(diff < 0){
+    }
+
+    // 4. send notification for user
+    if (!initialized) {
+        prev = diff;
+        initialized = 1;
+        return;
+    }
+
+    if (diff < prev) {
+        drop_count++;
+    } else {
+        drop_count = 0;
+    }
+
+    if (drop_count >= 3) {
         syslog(LOG_WARNING, "WARN: P4 processing may be bypassed by switch");
         system("echo \"WARN: P4 processing may be bypassed by the vSwitch\" | wall");
+        drop_count = 0;
     }
+
+    prev = diff;
+
+    // if(diff > 10){
+    //     syslog(LOG_WARNING, "INFO: increasing packet drop");
+    // }else if(diff < 0){
+    //     syslog(LOG_WARNING, "WARN: P4 processing may be bypassed by switch");
+    //     system("echo \"WARN: P4 processing may be bypassed by the vSwitch\" | wall");
+    // }
 }
 
 #ifdef ENCRYPT
