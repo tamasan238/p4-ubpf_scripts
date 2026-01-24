@@ -259,7 +259,6 @@ unsigned long long get_p4_stat(){
     static bool is_init = true;
 
     for(i=0; i<MAX_CONNECTIONS; i++){
-        // executions += (session[i].packet_count)/2;
         executions += session[i].packet_count;
     }
 
@@ -343,6 +342,11 @@ void shm_end() {
 }
 
 void check_p4_execution() {
+    if(count_from_wakeup < 20){ // wait for stabilize (20 * 3sec = 1min)
+        syslog(LOG_WARNING, "INFO: waiting for stabilize... (%lld/20)", count_from_wakeup+1);
+        return;
+    }
+
     static double prev;
     static int initialized = 0;
     static int drop_count = 0;
@@ -351,9 +355,6 @@ void check_p4_execution() {
     unsigned long long executions = get_p4_stat();
 
     // 2. get nic stat
-    if(!initialized) {
-        init_nic_stat();
-    }
     get_nic_stat(false);
 
     // 3. calc diff
@@ -389,15 +390,6 @@ void check_p4_execution() {
         drop_count = 0;
     }
 
-    // if(count_from_wakeup < 20){ // wait for stabilize (20 * 3sec = 1min)
-    //     syslog(LOG_WARNING, "INFO: waiting for stabilize... (%lld/20)", count_from_wakeup+1);
-    //     return;
-    // }else if (drop_count >= 3) {
-    //     syslog(LOG_WARNING, "WARN: P4 processing may be bypassed by switch");
-    //     system("echo \"WARN: P4 processing may be bypassed by the vSwitch\" | wall");
-    //     drop_count = 0;
-    // }
-
     prev = diff;
 
     // if(diff > 10){
@@ -420,7 +412,7 @@ int main() {
     
     shm_start();
     init_wolf();
-    // init_nic_stat();
+    init_nic_stat();
 
     pagesize = sysconf(_SC_PAGESIZE);
 
