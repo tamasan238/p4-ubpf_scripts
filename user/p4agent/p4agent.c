@@ -259,7 +259,8 @@ unsigned long long get_p4_stat(){
     static bool is_init = true;
 
     for(i=0; i<MAX_CONNECTIONS; i++){
-        executions += (session[i].packet_count)/2;
+        // executions += (session[i].packet_count)/2;
+        executions += session[i].packet_count;
     }
 
     if (is_init) {
@@ -321,8 +322,8 @@ void get_nic_stat(bool is_init){
     } else {
         passed_packets_rx = in_receives - passed_packets_rx_offset;
         passed_packets_tx = out_requests - passed_packets_tx_offset;
-        passed_packets = passed_packets_rx + passed_packets_tx;
-        // passed_packets = passed_packets_rx;
+        // passed_packets = passed_packets_rx + passed_packets_tx;
+        passed_packets = passed_packets_rx;
 
         // passed_packets_rx_offset = passed_packets_rx;
         // passed_packets_tx_offset = passed_packets_tx;
