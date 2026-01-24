@@ -252,25 +252,6 @@ void shm_start() {
     session = (Connection *)(shm_ptr + SHM_SESSION_TABLE);
 }
 
-unsigned long long get_p4_stat(){
-    int i;
-    unsigned long long executions = 0;
-    static unsigned long long executions_offset;
-    static bool is_init = true;
-
-    for(i=0; i<MAX_CONNECTIONS; i++){
-        executions += session[i].packet_count;
-    }
-
-    if (is_init) {
-        executions_offset = executions;
-        is_init = false;
-        syslog(LOG_WARNING, "INFO: p4 exec counter initialized");
-    }
-
-    return executions - executions_offset;
-}
-
 void get_nic_stat(bool is_init){
     FILE *fp;
     char header[1024];
@@ -321,8 +302,8 @@ void get_nic_stat(bool is_init){
     } else {
         passed_packets_rx = in_receives - passed_packets_rx_offset;
         passed_packets_tx = out_requests - passed_packets_tx_offset;
-        passed_packets = passed_packets_rx + passed_packets_tx;
-        // passed_packets = passed_packets_rx;
+        // passed_packets = passed_packets_rx + passed_packets_tx;
+        passed_packets = passed_packets_rx;
 
         // passed_packets_rx_offset = passed_packets_rx;
         // passed_packets_tx_offset = passed_packets_tx;
@@ -347,12 +328,16 @@ void check_p4_execution() {
         return;
     }
 
+    int i;
+    unsigned long long executions = 0;
     static double prev;
     static int initialized = 0;
     static int drop_count = 0;
 
-    // 1. get p4 stat
-    unsigned long long executions = get_p4_stat();
+    // 1. sum all p4 executions
+    for(i=0; i<MAX_CONNECTIONS; i++){
+        executions += session[i].packet_count;
+    }
 
     // 2. get nic stat
     get_nic_stat(false);
