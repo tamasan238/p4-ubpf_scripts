@@ -323,8 +323,10 @@ void shm_end() {
 }
 
 void check_p4_execution() {
-    if(count_from_wakeup < 20) // wait for stabilize (20 * 3sec = 1min)
+    if(count_from_wakeup < 20){ // wait for stabilize (20 * 3sec = 1min)
+        syslog(LOG_WARNING, "INFO: waiting for stabilize... (%d/20)", count_from_wakeup+1);
         return;
+    }
 
     int i;
     unsigned long long executions = 0;
@@ -346,7 +348,7 @@ void check_p4_execution() {
 
     syslog(LOG_WARNING, "diff: %.2f %%, P4 executed: %llu, packet proccessed: %llu", 
         diff, executions, passed_packets);
-        
+
     if (diff > 10) {
         syslog(LOG_WARNING, "INFO: increasing packet drop");
     }
@@ -355,13 +357,16 @@ void check_p4_execution() {
     if (!initialized) {
         prev = diff;
         initialized = 1;
+        syslog(LOG_WARNING, "INFO: checker initialized");
         return;
     }
 
     if (diff < prev) {
         drop_count++;
+        syslog(LOG_WARNING, "INFO: drop_count++");
     } else {
         drop_count = 0;
+        syslog(LOG_WARNING, "INFO: drop_count=0");
     }
 
     if (drop_count >= 3) {
