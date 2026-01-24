@@ -381,14 +381,21 @@ void check_p4_execution() {
         drop_count = 0;
         syslog(LOG_WARNING, "INFO: drop_count=0");
     }
-    if(count_from_wakeup < 20){ // wait for stabilize (20 * 3sec = 1min)
-        syslog(LOG_WARNING, "INFO: waiting for stabilize... (%lld/20)", count_from_wakeup+1);
-        return;
-    }else if (drop_count >= 3) {
+
+    if (drop_count >= 3) {
         syslog(LOG_WARNING, "WARN: P4 processing may be bypassed by switch");
         system("echo \"WARN: P4 processing may be bypassed by the vSwitch\" | wall");
         drop_count = 0;
     }
+
+    // if(count_from_wakeup < 20){ // wait for stabilize (20 * 3sec = 1min)
+    //     syslog(LOG_WARNING, "INFO: waiting for stabilize... (%lld/20)", count_from_wakeup+1);
+    //     return;
+    // }else if (drop_count >= 3) {
+    //     syslog(LOG_WARNING, "WARN: P4 processing may be bypassed by switch");
+    //     system("echo \"WARN: P4 processing may be bypassed by the vSwitch\" | wall");
+    //     drop_count = 0;
+    // }
 
     prev = diff;
 
