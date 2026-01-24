@@ -259,7 +259,7 @@ unsigned long long get_p4_stat(){
     static bool is_init = true;
 
     for(i=0; i<MAX_CONNECTIONS; i++){
-        executions += session[i].packet_count;
+        executions += (session[i].packet_count)/2;
     }
 
     if (is_init) {
