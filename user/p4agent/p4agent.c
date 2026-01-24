@@ -324,7 +324,7 @@ void shm_end() {
 
 void check_p4_execution() {
     if(count_from_wakeup < 20){ // wait for stabilize (20 * 3sec = 1min)
-        syslog(LOG_WARNING, "INFO: waiting for stabilize... (%d/20)", count_from_wakeup+1);
+        syslog(LOG_WARNING, "INFO: waiting for stabilize... (%lld/20)", count_from_wakeup+1);
         return;
     }
 
