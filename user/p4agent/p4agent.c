@@ -355,6 +355,9 @@ void check_p4_execution() {
     unsigned long long executions = get_p4_stat();
 
     // 2. get nic stat
+    if(!initialized) {
+        init_nic_stat();
+    }
     get_nic_stat(false);
 
     // 3. calc diff
@@ -412,7 +415,7 @@ int main() {
     
     shm_start();
     init_wolf();
-    init_nic_stat();
+    // init_nic_stat();
 
     pagesize = sysconf(_SC_PAGESIZE);
 
