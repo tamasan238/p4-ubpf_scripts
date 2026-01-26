@@ -302,8 +302,8 @@ void get_nic_stat(bool is_init){
     } else {
         passed_packets_rx = in_receives - passed_packets_rx_offset;
         passed_packets_tx = out_requests - passed_packets_tx_offset;
-        // passed_packets = passed_packets_rx + passed_packets_tx;
-        passed_packets = passed_packets_rx;
+        passed_packets = passed_packets_rx + passed_packets_tx;
+        // passed_packets = passed_packets_rx;
 
         // passed_packets_rx_offset = passed_packets_rx;
         // passed_packets_tx_offset = passed_packets_tx;
@@ -366,7 +366,7 @@ void check_p4_execution() {
 
     syslog(LOG_WARNING,
         "p4_delta=%llu vm_delta=%llu detected=%d (%d/%d)",
-        p4_delta, vm_delta, count, filled);
+        p4_delta, vm_delta, detected, count, filled);
 
     if (filled == WINDOW && count >= THRESHOLD) {
         syslog(LOG_WARNING, "WARN: P4 processing may be bypassed by switch");
