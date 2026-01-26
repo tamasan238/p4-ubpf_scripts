@@ -322,68 +322,126 @@ void shm_end() {
     close(fd);
 }
 
+#define WINDOW 5
+#define THRESHOLD 3
+
 void check_p4_execution() {
-    if(count_from_wakeup < 20){ // wait for stabilize (20 * 3sec = 1min)
-        syslog(LOG_WARNING, "INFO: waiting for stabilize... (%lld/20)", count_from_wakeup+1);
-        return;
-    }
+    static unsigned long long prev_exec = 0;
+    static unsigned long long prev_pass = 0;
+    static int history[WINDOW];
+    static int idx = 0;
+    static int filled = 0;
 
     int i;
     unsigned long long executions = 0;
-    static double prev;
-    static int initialized = 0;
-    static int drop_count = 0;
 
-    // 1. sum all p4 executions
     for(i=0; i<MAX_CONNECTIONS; i++){
         executions += session[i].packet_count;
     }
 
-    // 2. get nic stat
     get_nic_stat(false);
 
-    // 3. calc diff
-    double diff = ((double)executions - (double)passed_packets) /
-           (double)passed_packets * 100.0;
-
-    syslog(LOG_WARNING, "diff: %.2f %%, P4 executed: %llu, packet proccessed: %llu", 
-        diff, executions, passed_packets);
-
-    if (diff > 10) {
-        syslog(LOG_WARNING, "INFO: increasing packet drop");
-    }
-
-    // 4. send notification for user
-    if (!initialized) {
-        prev = diff;
-        initialized = 1;
-        syslog(LOG_WARNING, "INFO: checker initialized");
+    if (prev_exec == 0 && prev_pass == 0) {
+        prev_exec = executions;
+        prev_pass = passed_packets;
         return;
     }
 
-    if (diff < prev) {
-        drop_count++;
-        syslog(LOG_WARNING, "INFO: drop_count++");
-    } else {
-        drop_count = 0;
-        syslog(LOG_WARNING, "INFO: drop_count=0");
+    unsigned long long p4_delta = executions - prev_exec;
+    unsigned long long vm_delta = passed_packets - prev_pass;
+
+    int detected = 0;
+    if (p4_delta < vm_delta) {
+        detected = 1;
     }
 
-    if (drop_count >= 3) {
+    history[idx] = detected;
+    idx = (idx + 1) % WINDOW;
+    if (filled < WINDOW) filled++;
+
+    int count = 0;
+    for(i=0; i<filled; i++){
+        count += history[i];
+    }
+
+    syslog(LOG_WARNING,
+        "p4_delta=%llu vm_delta=%llu detected=%d (%d/%d)",
+        p4_delta, vm_delta, count, filled);
+
+    if (filled == WINDOW && count >= THRESHOLD) {
         syslog(LOG_WARNING, "WARN: P4 processing may be bypassed by switch");
         system("echo \"WARN: P4 processing may be bypassed by the vSwitch\" | wall");
-        drop_count = 0;
+        memset(history, 0, sizeof(history));
+        filled = 0;
     }
 
-    prev = diff;
-
-    // if(diff > 10){
-    //     syslog(LOG_WARNING, "INFO: increasing packet drop");
-    // }else if(diff < 0){
-    //     syslog(LOG_WARNING, "WARN: P4 processing may be bypassed by switch");
-    //     system("echo \"WARN: P4 processing may be bypassed by the vSwitch\" | wall");
-    // }
+    prev_exec = executions;
+    prev_pass = passed_packets;
 }
+
+
+// void check_p4_execution() {
+//     if(count_from_wakeup < 20){ // wait for stabilize (20 * 3sec = 1min)
+//         syslog(LOG_WARNING, "INFO: waiting for stabilize... (%lld/20)", count_from_wakeup+1);
+//         return;
+//     }
+
+//     int i;
+//     unsigned long long executions = 0;
+//     static double prev;
+//     static int initialized = 0;
+//     static int drop_count = 0;
+
+//     // 1. sum all p4 executions
+//     for(i=0; i<MAX_CONNECTIONS; i++){
+//         executions += session[i].packet_count;
+//     }
+
+//     // 2. get nic stat
+//     get_nic_stat(false);
+
+//     // 3. calc diff
+//     double diff = ((double)executions - (double)passed_packets) /
+//            (double)passed_packets * 100.0;
+
+//     syslog(LOG_WARNING, "diff: %.2f %%, P4 executed: %llu, packet proccessed: %llu", 
+//         diff, executions, passed_packets);
+
+//     if (diff > 10) {
+//         syslog(LOG_WARNING, "INFO: increasing packet drop");
+//     }
+
+//     // 4. send notification for user
+//     if (!initialized) {
+//         prev = diff;
+//         initialized = 1;
+//         syslog(LOG_WARNING, "INFO: checker initialized");
+//         return;
+//     }
+
+//     if (diff < prev) {
+//         drop_count++;
+//         syslog(LOG_WARNING, "INFO: drop_count++");
+//     } else {
+//         drop_count = 0;
+//         syslog(LOG_WARNING, "INFO: drop_count=0");
+//     }
+
+//     if (drop_count >= 3) {
+//         syslog(LOG_WARNING, "WARN: P4 processing may be bypassed by switch");
+//         system("echo \"WARN: P4 processing may be bypassed by the vSwitch\" | wall");
+//         drop_count = 0;
+//     }
+
+//     prev = diff;
+
+//     // if(diff > 10){
+//     //     syslog(LOG_WARNING, "INFO: increasing packet drop");
+//     // }else if(diff < 0){
+//     //     syslog(LOG_WARNING, "WARN: P4 processing may be bypassed by switch");
+//     //     system("echo \"WARN: P4 processing may be bypassed by the vSwitch\" | wall");
+//     // }
+// }
 
 #ifdef ENCRYPT
 int main() {
