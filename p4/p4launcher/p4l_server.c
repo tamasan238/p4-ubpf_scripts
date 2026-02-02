@@ -16,11 +16,18 @@
 #include <string.h>
 #include <syslog.h>
 #include <fcntl.h>
+typedef struct
+{
+    unsigned char iv[16];
+    unsigned char cipher_text[8];
+    unsigned char auth_tag[16];
+} Packet_count;
 
-typedef struct {
+typedef struct
+{
     long long ovs_thread_id;
     int p4runtime_id;
-    long long packet_count;
+    Packet_count packet_count;
 } Connection;
 
 typedef struct {
