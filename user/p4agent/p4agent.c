@@ -367,8 +367,6 @@ void check_p4_execution() {
             sizeof(counter)
         )) == 0){
             executions += counter;
-        } else {
-            syslog(LOG_WARNING,"decrypt failed: %d",temp_ret);;
         }
     }
 
