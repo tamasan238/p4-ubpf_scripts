@@ -17,12 +17,7 @@
 #ifdef ENCRYPT
 #include <stdint.h>
 #include <wolfssl/options.h>
-#ifdef USE_CHACHAPOLY
-#include <wolfssl/wolfcrypt/chacha20_poly1305.h>
-#endif
-#ifdef USE_AES
 #include <wolfssl/wolfcrypt/aes.h>
-#endif
 #include <wolfssl/wolfcrypt/random.h>
 #endif
 
@@ -88,8 +83,8 @@ unsigned long long count_from_wakeup = 0;
 /* end */
 
 #ifdef ENCRYPT
-WC_RNG rng;
-unsigned char ciphertext[256];
+WC_RNG rng, rng_counter;
+unsigned char ciphertext[256], ciphertext_counter[8];
 #ifdef USE_CHACHAPOLY
 unsigned char key[CHACHA20_POLY1305_AEAD_KEYSIZE] = {
     0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
@@ -101,7 +96,7 @@ unsigned char iv[CHACHA20_POLY1305_AEAD_IV_SIZE];
 unsigned char authTag[CHACHA20_POLY1305_AEAD_AUTHTAG_SIZE];
 #endif
 #ifdef USE_AES
-Aes aes;
+Aes aes, aes_counter;
 const unsigned char key[AES_256_KEY_SIZE] = {
 0x60,0x3d,0xeb,0x10,0x15,0xca,0x71,0xbe,
 0x2b,0x73,0xae,0xf0,0x85,0x7d,0x77,0x81,
@@ -109,8 +104,8 @@ const unsigned char key[AES_256_KEY_SIZE] = {
 0x2d,0x98,0x10,0xa3,0x09,0x14,0xdf,0xf4
 };
 
-unsigned char iv[12];
-unsigned char authTag[16];
+unsigned char iv[12], iv_counter[16];
+unsigned char authTag[16], authTag_counter[16];
 #endif
 
 void init_wolf() {
@@ -121,31 +116,18 @@ void init_wolf() {
         key,
         sizeof(key)
     );
+    wc_AesGcmSetKey(
+        &aes_counter,
+        key,
+        sizeof(key)
+    );
 #endif
 }
 
 int encrypt_message(const unsigned char* plaintext, unsigned int len) {
     int ret = 0;
 
-#ifdef MEASURE_ENC
-    struct timespec start, end;
-    clock_gettime(CLOCK_MONOTONIC, &start);
-#endif
-
     wc_RNG_GenerateBlock(&rng, iv, sizeof(iv));
-#ifdef USE_CHACHAPOLY
-    ret =  wc_ChaCha20Poly1305_Encrypt(
-        key,
-        iv,
-        NULL,
-        0,
-        plaintext,
-        len,
-        ciphertext,
-        authTag
-    );
-#endif
-#ifdef USE_AES
     ret = wc_AesGcmEncrypt(
         &aes,
         ciphertext,
@@ -158,14 +140,6 @@ int encrypt_message(const unsigned char* plaintext, unsigned int len) {
         NULL,
         0
     );
-#endif
-#ifdef MEASURE_ENC
-    clock_gettime(CLOCK_MONOTONIC, &end);
-    long seconds = end.tv_sec - start.tv_sec;
-    long nanoseconds = end.tv_nsec - start.tv_nsec;
-    long total_nanoseconds = seconds * 1000000000L + nanoseconds;
-    syslog(LOG_DEBUG, "暗号化所要時間: %ld[ns] (%ld)", nanoseconds, start.tv_nsec);
-#endif
 
     if(ret == 0){
         unsigned char* ptr = (unsigned char*)shm_ptr;
@@ -182,7 +156,40 @@ int encrypt_message(const unsigned char* plaintext, unsigned int len) {
     }
     return ret;
 }
-#endif
+
+int decrypt_counter(unsigned char* ptr_start, unsigned char* plaintext_counter, unsigned int len_counter)
+{
+    int ret = 0;
+
+    unsigned char* ptr = (unsigned char*)ptr_start;
+
+    unsigned char iv_local[16];
+    unsigned char cipher_local[8];
+    unsigned char auth_tag_local[16];
+
+    memcpy(iv_local, ptr, sizeof(iv_local));
+    ptr += sizeof(iv_local);
+
+    memcpy(cipher_local, ptr, sizeof(cipher_local));
+    ptr += sizeof(cipher_local);
+
+    memcpy(auth_tag_local, ptr, sizeof(auth_tag_local));
+
+    ret = wc_AesGcmDecrypt(
+        &aes_counter,
+        plaintext_counter,
+        cipher_local,
+        len_counter,
+        iv_local,
+        sizeof(iv_local),
+        auth_tag_local,
+        sizeof(auth_tag_local),
+        NULL,
+        0
+    );
+
+    return ret;
+}
 
 #define FOR_DEBUG
 #ifdef FOR_DEBUG
@@ -350,8 +357,16 @@ void check_p4_execution() {
     int i;
     unsigned long long executions = 0;
 
-    for(i=0; i<MAX_CONNECTIONS; i++){
-        executions += session[i].packet_count;
+    for(i = 0; i < MAX_CONNECTIONS; i++){
+        long long counter = 0;
+
+        if(decrypt_counter(
+            (unsigned char*)&session[i].packet_count,
+            (unsigned char*)&counter,
+            sizeof(counter)
+        ) == 0){
+            executions += counter;
+        }
     }
 
     get_nic_stat(false);
