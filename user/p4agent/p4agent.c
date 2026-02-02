@@ -82,7 +82,7 @@ unsigned long long count_from_wakeup = 0;
 #define SHM_FLAG_HOW_MANY_PACKETS (SHM_FLAG_PACKETS + 2) // use only first packet in batch
 /* end */
 
-#ifdef ENCRYPT
+
 WC_RNG rng, rng_counter;
 unsigned char ciphertext[256], ciphertext_counter[8];
 #ifdef USE_CHACHAPOLY
