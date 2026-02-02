@@ -359,13 +359,16 @@ void check_p4_execution() {
 
     for(i = 0; i < MAX_CONNECTIONS; i++){
         long long counter = 0;
+        int temp_ret;
 
-        if(decrypt_counter(
+        if((temp_ret = decrypt_counter(
             (unsigned char*)&session[i].packet_count,
             (unsigned char*)&counter,
             sizeof(counter)
-        ) == 0){
+        )) == 0){
             executions += counter;
+        } else {
+            syslog(LOG_WARNING,"decrypt failed: %d",temp_ret);;
         }
     }
 
@@ -376,6 +379,13 @@ void check_p4_execution() {
         prev_pass = passed_packets;
         return;
     }
+
+    if (executions < prev_exec) {
+        prev_exec = executions;
+        prev_pass = passed_packets;
+        return;
+    }
+
 
     unsigned long long p4_delta = executions - prev_exec;
     unsigned long long vm_delta = passed_packets - prev_pass;
