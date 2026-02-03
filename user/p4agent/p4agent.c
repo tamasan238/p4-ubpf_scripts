@@ -191,7 +191,7 @@ int decrypt_counter(unsigned char* ptr_start, unsigned char* plaintext_counter, 
     return ret;
 }
 
-#define FOR_DEBUG
+// #define FOR_DEBUG
 #ifdef FOR_DEBUG
 
 unsigned long get_threshold() {
