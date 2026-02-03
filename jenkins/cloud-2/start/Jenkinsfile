@@ -215,6 +215,7 @@ EOF
                 sudo su << InnerEOF
                 cd p4-ubpf_scripts && sudo git pull
                 cd user/p4agent
+                make clean
                 make
                 make install
                 ./p4agent
